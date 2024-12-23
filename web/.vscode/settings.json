@@ -1,0 +1,8 @@
+{
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.singleQuote": false,
+    "editor.tabSize": 2,
+    "files.associations": {
+        "*.vue": "tailwindcss"
+    }
+}

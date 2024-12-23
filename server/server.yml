@@ -1,0 +1,13 @@
+server:
+  port: 18888
+  db_url: postgres://postgres:postgres@localhost/miro-clone
+
+auth:
+  sk: |
+    -----BEGIN PRIVATE KEY-----
+    MC4CAQAwBQYDK2VwBCIEIP0/PhnN6R89IOmCATM9jVjlMnnKVbeCVwwhoZilkUbA
+    -----END PRIVATE KEY-----
+  pk: |
+    -----BEGIN PUBLIC KEY-----
+    MCowBQYDK2VwAyEAXHAATR4gi0u+zTGrce+eostq1HsVaVANWEPusp55WOM=
+    -----END PUBLIC KEY-----
