@@ -1,12 +1,11 @@
 import { ref } from "vue";
 import type { IStickyNote } from "./stickyNoteType";
+import { stickyNoteStore } from "../../../../store/stickyNote";
 
 export function useDragStickyNote() {
   const stickyNotes = ref<IStickyNote[]>([] as IStickyNote[]);
-  let count = 0
   const createStickyNote = () => {
-    count++
-    const id = count;
+    const id = new Date().getTime(); // id 取时间戳，保证唯一性
     const color = getRandomColorClass()
     stickyNotes.value.push({
       id,
@@ -23,6 +22,7 @@ export function useDragStickyNote() {
   }
 
   const dragStickyNote = (id: number) => {
+    stickyNoteStore.stickyNote.id = id
     const stickyNote = document.querySelector(`.sticky-note-${id}`) as HTMLElement;
     const stickyNoteHandler = document.querySelector(`.sticky-note-handler-${id}`) as HTMLElement;
     const stickyNoteResizer = document.querySelector(`.sticky-note-resizer-${id}`) as HTMLElement;
@@ -33,8 +33,14 @@ export function useDragStickyNote() {
     let startRX = 0, startRY = 0
     let stickyNoteStartWidth = 0, stickyNoteStartHeight = 0
 
+    // click
+    stickyNote.addEventListener('click', () => {
+      stickyNoteStore.stickyNote.id = id
+    })
+
     // resizing
     stickyNoteResizer.addEventListener('mousedown', (e: any) => {
+      stickyNoteStore.stickyNote.id = id
       startRX = e.clientX
       startRY = e.clientY
 
@@ -62,6 +68,8 @@ export function useDragStickyNote() {
 
     // draging
     stickyNoteHandler.addEventListener('mousedown', (e: any) => {
+      stickyNoteStore.stickyNote.id = id
+
       startX = e.clientX
       startY = e.clientY
 

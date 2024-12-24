@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
 
 import './tailwindcss.css'
@@ -28,4 +29,5 @@ function registerIcons(app: any) {
 const app = createApp(App)
 app.use(router)
 registerIcons(app)
+app.use(createPinia())
 app.mount('#app')

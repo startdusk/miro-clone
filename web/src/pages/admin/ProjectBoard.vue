@@ -11,6 +11,13 @@ import StickyNote from './components/project-board/StickyNote.vue';
 
 const { createStickyNote, deleteStickyNote, stickyNotes } = useDragStickyNote();
 
+const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
+  for (let i = 0; i < stickyNotes.value.length; i++) {
+    if (stickyNotes.value[i].id === stickyNoteId) {
+      stickyNotes.value[i].color = bgColor;
+    }
+  }
+}
 </script>
 <template>
   <div class="bg-slate-100">
@@ -20,7 +27,7 @@ const { createStickyNote, deleteStickyNote, stickyNotes } = useDragStickyNote();
           <img :src="logoImg" width="150" alt="logo" />
         </div> -->
         <AddItem @createStickyNote="createStickyNote" />
-        <ColorPalette />
+        <ColorPalette :stickyNotes="stickyNotes" @changeStickyNoteColor="changeStickyNoteBgColor"/>
         <UndoRedo />
       </div>
 

@@ -1,4 +1,7 @@
-<script setup lang="ts"> import type { IStickyNote } from '../../actions/project-board/stickyNoteType'; defineProps<{ stickyNotes: IStickyNote[]; }>();
+<script setup lang="ts"> 
+import type { IStickyNote } from '../../actions/project-board/stickyNoteType';
+
+defineProps<{ stickyNotes: IStickyNote[]; }>();
 const emit = defineEmits<{
   (e: "deleteStickyNote", stickyNote: IStickyNote): void;
 }>();
