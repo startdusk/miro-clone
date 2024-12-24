@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import StickyNoteIcon from '../../components/StickyNoteIcon.vue';
-import DocumentIcon from '../../components/DocumentIcon.vue';
-import UndoIcon from '../../components/UndoIcon.vue';
-import RedoIcon from '../../components/RedoIcon.vue';
-import PersonPlusIcon from '../../components/PersonPlusIcon.vue';
-
+import AddItem from './components/project-board/AddItem.vue';
+import ColorPalette from './components/project-board/ColorPalette.vue';
+import UndoRedo from './components/project-board/UndoRedo.vue';
 import avatarImg from '../../assets/img/avatar.webp'
 
 import logoImg from '../../assets/img/logo.png'
+
+import { useDragStickyNote } from './actions/project-board/stickyNote';
+import StickyNote from './components/project-board/StickyNote.vue';
+
+const { createStickyNote, deleteStickyNote, stickyNotes } = useDragStickyNote();
 
 </script>
 <template>
@@ -17,43 +19,9 @@ import logoImg from '../../assets/img/logo.png'
         <!-- <div class="flex justify-center py-4">
           <img :src="logoImg" width="150" alt="logo" />
         </div> -->
-        <ul class="flex flex-col px-2 bg-white mt-20 mb-2 gap-2 p-2 rounded-md shadow-md">
-          <li class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer">
-            <span class="icon pt-1">
-              <StickyNoteIcon />
-            </span>
-          </li>
-          <li class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer">
-            <span class="icon pt-1">
-              <DocumentIcon />
-            </span>
-          </li>
-        </ul>
-
-        <ul class="flex flex-col px-2 bg-white mb-2 gap-2 p-2 rounded-md shadow-md">
-          <li class="flex flex-row rounded-md h-8 bg-yellow-300 gap-2 cursor-pointer">
-          </li>
-          <li class="flex flex-row rounded-md h-8 bg-indigo-300 gap-2 cursor-pointer">
-          </li>
-          <li class="flex flex-row rounded-md h-8 bg-blue-300 gap-2 cursor-pointer">
-          </li>
-          <li class="flex flex-row rounded-md h-8 bg-pink-300 gap-2 cursor-pointer">
-          </li>
-        </ul>
-
-        <ul class="flex flex-col px-2 bg-white mb-2 gap-2 p-2 rounded-md shadow-md">
-          <li class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer">
-            <span class="icon pt-1">
-              <RedoIcon />
-            </span>
-          </li>
-          <li class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer">
-            <span class="icon pt-1">
-              <UndoIcon />
-            </span>
-          </li>
-        </ul>
-
+        <AddItem @createStickyNote="createStickyNote" />
+        <ColorPalette />
+        <UndoRedo />
       </div>
 
       <div class="bg-slate-200 w-screen">
@@ -70,17 +38,9 @@ import logoImg from '../../assets/img/logo.png'
           </div>
         </div>
 
-          <div class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100">
-            <div class="px-6 text-indigo-700">
-              <div class="flex justify-center">
-                <PlusIcon />
-              </div>
-              <div class="flex justify-center">
-                <p>New Board</p>
-              </div>
-            </div>
-          </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
+          <StickyNote :stickyNotes="stickyNotes" @deleteStickyNote="deleteStickyNote" />
+        </div>
       </div>
     </div>
   </div>

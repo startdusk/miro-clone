@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import QueueListIcon from '../../components/QueueListIcon.vue';
-import LogoutIcon from '../../components/LogoutIcon.vue';
-import PlusIcon from '../../components/PlusIcon.vue';
 
 import avatarImg from '../../assets/img/avatar.webp'
 import logoImg from '../../assets/img/logo.png'
