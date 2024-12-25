@@ -8,8 +8,12 @@ import logoImg from '../../assets/img/logo.png'
 
 import { useDragStickyNote } from './actions/project-board/stickyNote';
 import StickyNote from './components/project-board/StickyNote.vue';
+import MiniTextEditor from './components/project-board/MiniTextEditor.vue';
+import { useDragMiniTextEditor } from './actions/project-board/editor/miniTextEditor';
 
 const { createStickyNote, deleteStickyNote, stickyNotes } = useDragStickyNote();
+
+const { createMiniTextEditor, deleteMiniTextEditor, miniTextEditors} = useDragMiniTextEditor()
 
 const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
   for (let i = 0; i < stickyNotes.value.length; i++) {
@@ -18,6 +22,15 @@ const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
     }
   }
 }
+
+const changeMiniTextEditorBgColor = (miniTextEditorId: number, bgColor: string) => {
+  for (let i = 0; i < miniTextEditors.value.length; i++) {
+    if (miniTextEditors.value[i].id === miniTextEditorId) {
+      miniTextEditors.value[i].color = bgColor;
+    }
+  }
+}
+
 </script>
 <template>
   <div class="bg-slate-100">
@@ -26,8 +39,8 @@ const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
         <!-- <div class="flex justify-center py-4">
           <img :src="logoImg" width="150" alt="logo" />
         </div> -->
-        <AddItem @createStickyNote="createStickyNote" />
-        <ColorPalette :stickyNotes="stickyNotes" @changeStickyNoteColor="changeStickyNoteBgColor"/>
+        <AddItem @createStickyNote="createStickyNote" @createMiniTextEditor="createMiniTextEditor" />
+        <ColorPalette :stickyNotes="stickyNotes" @changeStickyNoteColor="changeStickyNoteBgColor" @changeMiniTextEditorBgColor="changeMiniTextEditorBgColor"/>
         <UndoRedo />
       </div>
 
@@ -47,6 +60,7 @@ const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
           <StickyNote :stickyNotes="stickyNotes" @deleteStickyNote="deleteStickyNote" />
+          <MiniTextEditor :miniTextEditors="miniTextEditors" @deleteMiniTextEditor="deleteMiniTextEditor" />
         </div>
       </div>
     </div>

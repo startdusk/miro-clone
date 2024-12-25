@@ -14,6 +14,8 @@ export function useDragStickyNote() {
       dragPosition: { x: 0, y: 0 },
       resizePosition: { x: 0, y: 0 }
     })
+
+    stickyNoteStore.stickyNote.id = id
     setTimeout(() => dragStickyNote(id), 200)
   }
 
