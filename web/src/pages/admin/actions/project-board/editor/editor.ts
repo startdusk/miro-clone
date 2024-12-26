@@ -1,4 +1,4 @@
-import { createApplyAliginClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyItalicClassName, createApplyUnderlineClassName } from "../miniTextEditorType"
+import { createApplyAlignClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyItalicClassName, createApplyUnderlineClassName } from "../miniTextEditorType"
 
 export function useEditor() {
   return { 
@@ -8,9 +8,9 @@ export function useEditor() {
     applyH1,
     applyH2,
     applyH3,
-    applyAliginCenter,
-    applyAliginLeft,
-    applyAliginRight  
+    applyAlignCenter,
+    applyAlignLeft,
+    applyAlignRight
   }
 }
 
@@ -51,22 +51,22 @@ const applyH3 = (id: number) => {
 }
 
 // 左对齐
-function applyAliginLeft(id: number) {
-  applyAliginment(id, 'left')
+function applyAlignLeft(id: number) {
+  applyAlignment(id, 'left')
 }
 
 // 右对齐
-function applyAliginRight(id: number) {
-  applyAliginment(id, 'right')
+function applyAlignRight(id: number) {
+  applyAlignment(id, 'right')
 }
 
 // 居中
-function applyAliginCenter(id: number) {
-  applyAliginment(id, 'center')
+function applyAlignCenter(id: number) {
+  applyAlignment(id, 'center')
 }
 
-function applyAliginment(id: number, aliginment: 'left' | 'center' | 'right') {
-  const apply = document.querySelector('.' + createApplyAliginClassName(id, aliginment)) as HTMLElement
+function applyAlignment(id: number, aliginment: 'left' | 'center' | 'right') {
+  const apply = document.querySelector('.' + createApplyAlignClassName(id, aliginment)) as HTMLElement
   apply.addEventListener('click', () => {
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return

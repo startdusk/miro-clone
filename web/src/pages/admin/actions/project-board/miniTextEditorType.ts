@@ -50,8 +50,8 @@ export function createApplyH3ClassName(id: number) {
   return `apply-h3-${id}`
 }
 
-export function createApplyAliginClassName(id: number, aliginment: 'left' | 'center' | 'right') {
-  return `apply-aligin-${aliginment}-${id}`
+export function createApplyAlignClassName(id: number, alignment: 'left' | 'center' | 'right') {
+  return `apply-aligin-${alignment}-${id}`
 }
 
 export function createApplyListClassName(id: number) {

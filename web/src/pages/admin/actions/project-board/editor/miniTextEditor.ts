@@ -4,7 +4,7 @@ import { miniTextEditorStore } from "../../../../../store/miniTextEditor";
 import { useEditor } from "./editor";
 
 export function useDragMiniTextEditor() {
-  const { applyBold, applyItalic, applyUnderline, applyH1, applyH2, applyH3, applyAliginRight } = useEditor()
+  const { applyBold, applyItalic, applyUnderline, applyH1, applyH2, applyH3, applyAlignCenter, applyAlignLeft, applyAlignRight } = useEditor()
   const miniTextEditors = ref<IMiniTextEditor[]>([] as IMiniTextEditor[]);
   const createMiniTextEditor = () => {
     const id = new Date().getTime(); // id 取时间戳，保证唯一性
@@ -104,7 +104,9 @@ export function useDragMiniTextEditor() {
     applyH1(id)
     applyH2(id)
     applyH3(id)
-    applyAliginRight(id)
+    applyAlignLeft(id)
+    applyAlignCenter(id)
+    applyAlignRight(id)
   }
   return { dragMiniTextEditor, createMiniTextEditor, deleteMiniTextEditor,  miniTextEditors }
 }

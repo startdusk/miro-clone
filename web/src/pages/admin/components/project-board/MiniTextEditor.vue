@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { 
-  createApplyAliginClassName,
+  createApplyAlignClassName,
   createApplyBoldClassName,
   createApplyH1ClassName,
   createApplyH2ClassName,
@@ -23,7 +23,7 @@ const emit = defineEmits<{
 <template>
   <div
     v-for="miniTextEditor of miniTextEditors" :key="miniTextEditor.id"
-    :class="`flex flex-col min-h-40 min-w-[400px] w-[400px] shadow-md p-4 m-4 rounded-md cursor-pointer ${createMiniTextEditorClassName(miniTextEditor.id)}`"
+    :class="`flex flex-col min-h-40 min-w-[440px] w-[500px] shadow-md p-4 m-4 rounded-md cursor-pointer ${createMiniTextEditorClassName(miniTextEditor.id)}`"
   >
     <div class="card-header flex justify-between">
       <div class="hover:bg-slate-100 px-1 py-1 rounded-md" @click="emit('deleteMiniTextEditor', miniTextEditor)">
@@ -52,13 +52,13 @@ const emit = defineEmits<{
       <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyH3ClassName(miniTextEditor.id)}`">
         <H3Icon />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAliginClassName(miniTextEditor.id, 'left')}`">
+      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAlignClassName(miniTextEditor.id, 'left')}`">
         <AlignLeftIcon />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAliginClassName(miniTextEditor.id, 'center')}`">
+      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAlignClassName(miniTextEditor.id, 'center')}`">
         <AlignCenterIcon />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAliginClassName(miniTextEditor.id, 'right')}`">
+      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAlignClassName(miniTextEditor.id, 'right')}`">
         <AlignRightIcon />
       </button>
       <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyListClassName(miniTextEditor.id)}`">
