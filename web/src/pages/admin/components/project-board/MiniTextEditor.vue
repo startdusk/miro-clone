@@ -23,7 +23,7 @@ const emit = defineEmits<{
 <template>
   <div
     v-for="miniTextEditor of miniTextEditors" :key="miniTextEditor.id"
-    :class="`flex flex-col min-h-40 min-w-[440px] w-[500px] shadow-md p-4 m-4 rounded-md cursor-pointer ${createMiniTextEditorClassName(miniTextEditor.id)}`"
+    :class="`flex flex-col min-h-40 min-w-[470px] shadow-md p-4 m-4 rounded-md cursor-pointer ${createMiniTextEditorClassName(miniTextEditor.id)}`"
   >
     <div class="card-header flex justify-between">
       <div class="hover:bg-slate-100 px-1 py-1 rounded-md" @click="emit('deleteMiniTextEditor', miniTextEditor)">

@@ -3,8 +3,11 @@ import { createMiniTextEditorClassName, createMiniTextEditorHandlerClassName, cr
 import { miniTextEditorStore } from "../../../../../store/miniTextEditor";
 import { useEditor } from "./editor";
 
+/**
+ * 使用拖拽小型文本编辑器
+ */
 export function useDragMiniTextEditor() {
-  const { applyBold, applyItalic, applyUnderline, applyH1, applyH2, applyH3, applyAlignCenter, applyAlignLeft, applyAlignRight } = useEditor()
+  const { applyBold, applyItalic, applyUnderline, applyH1, applyH2, applyH3, applyAlignCenter, applyAlignLeft, applyAlignRight, applyUnorderedList, applyLink, insertImage } = useEditor()
   const miniTextEditors = ref<IMiniTextEditor[]>([] as IMiniTextEditor[]);
   const createMiniTextEditor = () => {
     const id = new Date().getTime(); // id 取时间戳，保证唯一性
@@ -107,10 +110,16 @@ export function useDragMiniTextEditor() {
     applyAlignLeft(id)
     applyAlignCenter(id)
     applyAlignRight(id)
+    applyUnorderedList(id)
+    applyLink(id)
+    insertImage(id)
   }
   return { dragMiniTextEditor, createMiniTextEditor, deleteMiniTextEditor,  miniTextEditors }
 }
 
+/**
+ * 获取随机颜色
+ */
 function getRandomColorClass() {
   const colors = ['bg-blue-300', 'bg-indigo-300', 'bg-yellow-300', 'bg-pink-300']
   return colors[Math.floor(Math.random() * colors.length)]
