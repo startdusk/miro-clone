@@ -10,10 +10,11 @@ import { useDragStickyNote } from './actions/project-board/stickyNote';
 import StickyNote from './components/project-board/StickyNote.vue';
 import MiniTextEditor from './components/project-board/MiniTextEditor.vue';
 import { useDragMiniTextEditor } from './actions/project-board/editor/miniTextEditor';
+import { onMounted } from 'vue';
 
-const { createStickyNote, deleteStickyNote, stickyNotes } = useDragStickyNote();
+const { createStickyNote, deleteStickyNote, initYjs, stickyNotes } = useDragStickyNote();
 
-const { createMiniTextEditor, deleteMiniTextEditor, miniTextEditors} = useDragMiniTextEditor()
+const { createMiniTextEditor, deleteMiniTextEditor, miniTextEditors } = useDragMiniTextEditor()
 
 const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
   for (let i = 0; i < stickyNotes.value.length; i++) {
@@ -30,6 +31,10 @@ const changeMiniTextEditorBgColor = (miniTextEditorId: number, bgColor: string) 
     }
   }
 }
+
+onMounted(() => {
+  initYjs()
+})
 
 </script>
 <template>

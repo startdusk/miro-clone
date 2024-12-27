@@ -14,6 +14,9 @@ dependencies:
   vue-router:
     specifier: ^4.5.0
     version: 4.5.0(vue@3.5.13)
+  y-indexeddb:
+    specifier: ^9.0.12
+    version: 9.0.12(yjs@13.6.21)
   y-websocket:
     specifier: ^2.1.0
     version: 2.1.0(yjs@13.6.21)
@@ -1872,6 +1875,16 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /y-indexeddb@9.0.12(yjs@13.6.21):
+    resolution: {integrity: sha512-9oCFRSPPzBK7/w5vOkJBaVCQZKHXB/v6SIT+WYhnJxlEC61juqG0hBrAf+y3gmSMLFLwICNH9nQ53uscuse6Hg==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      yjs: ^13.0.0
+    dependencies:
+      lib0: 0.2.99
+      yjs: 13.6.21
+    dev: false
 
   /y-leveldb@0.1.2(yjs@13.6.21):
     resolution: {integrity: sha512-6ulEn5AXfXJYi89rXPEg2mMHAyyw8+ZfeMMdOtBbV8FJpQ1NOrcgi6DTAcXof0dap84NjHPT2+9d0rb6cFsjEg==}

@@ -16,6 +16,11 @@ const routes: RouteRecordRaw[] = [
         name: 'project-board',
         component: () => import('../pages/admin/ProjectBoard.vue')
     },
+    {
+        path: '/learn-yjs',
+        name: 'learn-yjs',
+        component: () => import('../pages/admin/LearnYjs.vue')
+    },
     { path: '/', redirect: { name: 'login' } },
     { path: '/*', redirect: { name: 'login' } }
 ] as const
