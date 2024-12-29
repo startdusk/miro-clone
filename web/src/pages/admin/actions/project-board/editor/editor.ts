@@ -29,7 +29,7 @@ function highlightText(id: number) {
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
-    const selectedText = range.extractContents()
+    const selectedText = range.cloneContents()
     
     const isApply = range.commonAncestorContainer.parentElement?.closest('hl')
     // 如果已经应用了，就取消应用
@@ -59,7 +59,7 @@ function addHightlight(range: Range, selectedText: DocumentFragment) {
 }
 
 /**
- * 删除高亮
+ * 删除高亮 
  * @param range 
  */
 function removeHightlight(range: Range) {
