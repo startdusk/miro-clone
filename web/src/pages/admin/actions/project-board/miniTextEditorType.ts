@@ -14,6 +14,10 @@ export interface IMiniTextEditor {
 
 const classNamePrefix = 'text-editor'
 
+export function createApplyHighlightTextClassName(id: number) {
+  return `apply-highlight-text-${id}`
+}
+
 export function createMiniTextEditorClassName(id: number) {
   return `${classNamePrefix}-${id}`
 }
@@ -24,6 +28,10 @@ export function createMiniTextEditorHandlerClassName(id: number) {
 
 export function createMiniTextEditorResizerClassName(id: number) {
   return `${classNamePrefix}-resizer-${id}`
+}
+
+export function createMiniTextEditorBodyClassName(id: number) {
+  return `${classNamePrefix}-body-${id}`
 }
 
 export function createApplyBoldClassName(id: number) {

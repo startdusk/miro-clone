@@ -6,14 +6,17 @@ import {
   createApplyH1ClassName,
   createApplyH2ClassName,
   createApplyH3ClassName,
+  createApplyHighlightTextClassName,
   createApplyImageClassName,
   createApplyItalicClassName,
   createApplyLinkClassName,
   createApplyListClassName,
   createApplyUnderlineClassName,
+  createMiniTextEditorBodyClassName,
   createMiniTextEditorClassName, 
   createMiniTextEditorHandlerClassName,
   createMiniTextEditorResizerClassName, type IMiniTextEditor } from '../../actions/project-board/miniTextEditorType';
+
 
 defineProps<{ miniTextEditors: IMiniTextEditor[]; }>();
 const emit = defineEmits<{
@@ -23,7 +26,13 @@ const emit = defineEmits<{
 <template>
   <div
     v-for="miniTextEditor of miniTextEditors" :key="miniTextEditor.id"
-    :class="`flex flex-col min-h-40 min-w-[470px] shadow-md p-4 m-4 rounded-md cursor-pointer ${createMiniTextEditorClassName(miniTextEditor.id)}`"
+    :style="{
+      top: miniTextEditor.dragPosition.x + 'px',
+      left: miniTextEditor.dragPosition.y + 'px',
+      width: miniTextEditor.resizePosition.x + 'px',
+      height: miniTextEditor.resizePosition.y + 'px'
+    }"
+    :class="`flex flex-col min-h-40 min-w-[490px] shadow-md p-4 m-4 rounded-md cursor-pointer ${createMiniTextEditorClassName(miniTextEditor.id)}`"
   >
     <div class="card-header flex justify-between">
       <div class="hover:bg-slate-100 px-1 py-1 rounded-md" @click="emit('deleteMiniTextEditor', miniTextEditor)">
@@ -70,9 +79,12 @@ const emit = defineEmits<{
       <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyImageClassName(miniTextEditor.id)}`">
         <ImageIcon />
       </button>
+      <button :class="`hover:bg-yellow-200 bg-yellow-300 w-6 h-4 text-xs py-1 px-1 pt-4 rounded-md ${createApplyHighlightTextClassName(miniTextEditor.id)}`">
+      </button>
     </div>
-    <div class="card-body w-full h-full p-2 bg-white" contenteditable="true">
-      content here...
+    <div 
+      v-html="miniTextEditor.body"
+      :class="`card-body w-full h-full p-2 bg-white ${createMiniTextEditorBodyClassName(miniTextEditor.id)}`" contenteditable="true">
     </div>
     <div class="flex justify-end">
       <div :class="`cursor-nw-resize ${createMiniTextEditorResizerClassName(miniTextEditor.id)}`">

@@ -19,9 +19,9 @@ async function registerIcons(app: any) {
     }
   }
 }
-
 const app = createApp(App)
 app.use(router)
 app.use(createPinia())
 await registerIcons(app)
 app.mount('#app')
+

@@ -1,4 +1,5 @@
-import { createApplyAlignClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyImageClassName, createApplyItalicClassName, createApplyLinkClassName, createApplyListClassName, createApplyUnderlineClassName } from "../miniTextEditorType"
+import { yjsDocStore } from "../../../../../store/yjsDoc"
+import { createApplyAlignClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyHighlightTextClassName, createApplyImageClassName, createApplyItalicClassName, createApplyLinkClassName, createApplyListClassName, createApplyUnderlineClassName, createMiniTextEditorBodyClassName } from "../miniTextEditorType"
 
 export function useEditor() {
   return { 
@@ -13,8 +14,62 @@ export function useEditor() {
     applyAlignRight,
     applyUnorderedList,
     applyLink,
-    insertImage
+    insertImage,
+    highlightText
   }
+}
+
+/** 
+ * 高亮文本
+ * @param id id
+ */
+function highlightText(id: number) {
+  const hightlightBtn = document.querySelector('.'+createApplyHighlightTextClassName(id)) as HTMLElement
+  hightlightBtn.addEventListener('click', () => {
+    const selection = window.getSelection() as Selection
+    if (!selection || !selection.rangeCount) return
+    const range = selection.getRangeAt(0)
+    const selectedText = range.extractContents()
+    
+    const isApply = range.commonAncestorContainer.parentElement?.closest('hl')
+    // 如果已经应用了，就取消应用
+    if (isApply) {
+      removeHightlight(range)
+    } else {
+      addHightlight(range, selectedText)
+    }
+    replicateTextFormatingWithId(id)
+    // 重要: 要清空选中
+    selection.removeAllRanges()
+  })
+}
+
+/**
+ * 添加高亮
+ * @param range 
+ * @param selectedText 
+ */
+function addHightlight(range: Range, selectedText: DocumentFragment) {
+  const highlightText = document.createElement('hl') as HTMLElement
+  highlightText.style.backgroundColor = '#fde047'
+  highlightText.style.color = 'black'
+  highlightText.appendChild(selectedText)
+  range.deleteContents()
+  range.insertNode(highlightText)
+}
+
+/**
+ * 删除高亮
+ * @param range 
+ */
+function removeHightlight(range: Range) {
+    const parentElement = range.commonAncestorContainer.parentElement?.closest('hl')
+    const docFragment = document.createDocumentFragment()
+    if (parentElement?.firstChild) {
+      console.log(parentElement.firstChild)
+      docFragment.appendChild(parentElement.firstChild)
+    }
+    parentElement?.replaceWith(docFragment)
 }
 
 /**
@@ -23,7 +78,7 @@ export function useEditor() {
  */
 const applyBold = (id: number) => {
   const className = createApplyBoldClassName(id)
-  applyTag('b', className)
+  applyTag(id, 'b', className)
 }
 
 /**
@@ -32,7 +87,7 @@ const applyBold = (id: number) => {
  */
 const applyItalic = (id: number) => {
   const className = createApplyItalicClassName(id)
-  applyTag('i', className)
+  applyTag(id, 'i', className)
 }
 
 /**
@@ -41,7 +96,7 @@ const applyItalic = (id: number) => {
  */
 const applyUnderline = (id: number) => {
   const className = createApplyUnderlineClassName(id)
-  applyTag('u', className)
+  applyTag(id, 'u', className)
 }
 
 /**
@@ -50,7 +105,7 @@ const applyUnderline = (id: number) => {
  */
 const applyH1 = (id: number) => {
   const className = createApplyH1ClassName(id)
-  applyTag('h1', className)
+  applyTag(id, 'h1', className)
 }
 
 /**
@@ -59,7 +114,7 @@ const applyH1 = (id: number) => {
  */
 const applyH2 = (id: number) => {
   const className = createApplyH2ClassName(id)
-  applyTag('h2', className)
+  applyTag(id, 'h2', className)
 }
 
 /**
@@ -68,7 +123,7 @@ const applyH2 = (id: number) => {
  */
 const applyH3 = (id: number) => {
   const className = createApplyH3ClassName(id)
-  applyTag('h3', className)
+  applyTag(id, 'h3', className)
 }
 
 /**
@@ -120,6 +175,7 @@ function applyUnorderedList(id: number) {
     range.setEndAfter(ul)
     selection.addRange(range)
     
+    replicateTextFormatingWithId(id)
     selection.removeAllRanges()
   })
 }
@@ -145,6 +201,7 @@ function applyLink(id: number) {
     link.appendChild(selectedText)
     range.insertNode(link)
     
+    replicateTextFormatingWithId(id)
     selection.removeAllRanges()
   })
 }
@@ -171,6 +228,7 @@ function insertImage(id: number) {
     range.setStartAfter(img)
     range.setEndAfter(img)
     selection.addRange(range)
+    replicateTextFormatingWithId(id)
     selection.removeAllRanges()
   })
 }
@@ -204,6 +262,7 @@ function applyAlignment(id: number, alignment: 'left' | 'center' | 'right') {
     range.deleteContents()
     range.insertNode(aliginText)
     
+    replicateTextFormatingWithId(id)
     selection.removeAllRanges()
   })
 }
@@ -211,10 +270,11 @@ function applyAlignment(id: number, alignment: 'left' | 'center' | 'right') {
 
 /**
  * 应用标签
+ * @param id id
  * @param tagName 标签名
  * @param className 类名
  */
-function applyTag(tagName: string, className: string) {
+function applyTag(id: number, tagName: string, className: string) {
   const apply = document.querySelector('.' + className) as HTMLElement
   apply.addEventListener('click', () => {
     // 拿到当前选中的文本
@@ -222,15 +282,16 @@ function applyTag(tagName: string, className: string) {
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
     const selectedText = range.cloneContents()
-    // 选中的文本的父元素，用于判断是否已经加粗
+    // 选中的文本的父元素，用于判断是否已经添加了标签(加粗/斜体之类的等等)
     const parentElement = range.commonAncestorContainer.parentElement
-    const isItalic = parentElement?.closest(tagName)
-    // 如果已经斜体，就取消斜体
-    if (isItalic) {
+    const isApply = parentElement?.closest(tagName)
+    // 如果已经应用了，就取消应用
+    if (isApply) {
       removeTag(range, tagName)
     } else {
       addTag(range, tagName, selectedText)
     }
+    replicateTextFormatingWithId(id)
     // 重要: 要清空选中
     selection.removeAllRanges()
   })
@@ -274,4 +335,18 @@ function removeTag(range: Range, tagName: string) {
     docFragment.appendChild(parentElement.firstChild)
   }
   parentElement?.replaceWith(docFragment)
+}
+
+const replicateTextFormatingWithId = (id: number) => {
+  const bodyContent = document.querySelector('.' + createMiniTextEditorBodyClassName(id)) as HTMLElement
+  const index = yjsDocStore.miniTextEditors.findIndex(editor => editor.id === id)
+  if (!index) return
+  const newContent = yjsDocStore.miniTextEditors[index].body = bodyContent.innerHTML
+  yjsDocStore.doc.transact(() => {
+    const trackMiniTextEditor = yjsDocStore.yArrayMiniTextEditor.get(index)
+    if (!trackMiniTextEditor) return
+    trackMiniTextEditor.body = newContent
+    yjsDocStore.yArrayMiniTextEditor.delete(index)
+    yjsDocStore.yArrayMiniTextEditor.insert(index, [trackMiniTextEditor])
+  })
 }

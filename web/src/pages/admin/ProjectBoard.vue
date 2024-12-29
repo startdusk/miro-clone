@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
+
+
 import AddItem from './components/project-board/AddItem.vue';
 import ColorPalette from './components/project-board/ColorPalette.vue';
 import UndoRedo from './components/project-board/UndoRedo.vue';
@@ -10,30 +13,32 @@ import { useDragStickyNote } from './actions/project-board/stickyNote';
 import StickyNote from './components/project-board/StickyNote.vue';
 import MiniTextEditor from './components/project-board/MiniTextEditor.vue';
 import { useDragMiniTextEditor } from './actions/project-board/editor/miniTextEditor';
-import { onMounted } from 'vue';
+import { type IStickyNote } from './actions/project-board/stickyNoteType';
+import { yjsDocStore } from '../../store/yjsDoc';
 
-const { createStickyNote, deleteStickyNote, initYjs, stickyNotes } = useDragStickyNote();
+const { createStickyNote, deleteStickyNote, initStickyNoteYjs } = useDragStickyNote();
 
-const { createMiniTextEditor, deleteMiniTextEditor, miniTextEditors } = useDragMiniTextEditor()
+const { createMiniTextEditor, deleteMiniTextEditor, initMiniTextEditorYjs } = useDragMiniTextEditor()
 
 const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
-  for (let i = 0; i < stickyNotes.value.length; i++) {
-    if (stickyNotes.value[i].id === stickyNoteId) {
-      stickyNotes.value[i].color = bgColor;
+  for (let i = 0; i < yjsDocStore.stickyNotes.length; i++) {
+    if (yjsDocStore.stickyNotes[i].id === stickyNoteId) {
+      yjsDocStore.stickyNotes[i].color = bgColor;
     }
   }
 }
 
 const changeMiniTextEditorBgColor = (miniTextEditorId: number, bgColor: string) => {
-  for (let i = 0; i < miniTextEditors.value.length; i++) {
-    if (miniTextEditors.value[i].id === miniTextEditorId) {
-      miniTextEditors.value[i].color = bgColor;
+  for (let i = 0; i < yjsDocStore.miniTextEditors.length; i++) {
+    if (yjsDocStore.miniTextEditors[i].id === miniTextEditorId) {
+      yjsDocStore.miniTextEditors[i].color = bgColor;
     }
   }
 }
 
 onMounted(() => {
-  initYjs()
+  initStickyNoteYjs()
+  initMiniTextEditorYjs()
 })
 
 </script>
@@ -45,7 +50,7 @@ onMounted(() => {
           <img :src="logoImg" width="150" alt="logo" />
         </div> -->
         <AddItem @createStickyNote="createStickyNote" @createMiniTextEditor="createMiniTextEditor" />
-        <ColorPalette :stickyNotes="stickyNotes" @changeStickyNoteColor="changeStickyNoteBgColor" @changeMiniTextEditorBgColor="changeMiniTextEditorBgColor"/>
+        <ColorPalette :stickyNotes="yjsDocStore.stickyNotes" @changeStickyNoteColor="changeStickyNoteBgColor" @changeMiniTextEditorBgColor="changeMiniTextEditorBgColor"/>
         <UndoRedo />
       </div>
 
@@ -64,8 +69,8 @@ onMounted(() => {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
-          <StickyNote :stickyNotes="stickyNotes" @deleteStickyNote="deleteStickyNote" />
-          <MiniTextEditor :miniTextEditors="miniTextEditors" @deleteMiniTextEditor="deleteMiniTextEditor" />
+          <StickyNote :stickyNotes="yjsDocStore.stickyNotes" @deleteStickyNote="deleteStickyNote" />
+          <MiniTextEditor :miniTextEditors="yjsDocStore.miniTextEditors" @deleteMiniTextEditor="deleteMiniTextEditor" />
         </div>
       </div>
     </div>

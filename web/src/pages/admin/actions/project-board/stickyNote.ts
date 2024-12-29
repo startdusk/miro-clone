@@ -1,102 +1,79 @@
-import { ref } from "vue";
-import * as Y from 'yjs';
-import { WebsocketProvider } from 'y-websocket'
-import { IndexeddbPersistence } from 'y-indexeddb'
-
-
 import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyNoteHandlerClassName, createStickyNoteResizerClassName, type IStickyNote } from "./stickyNoteType";
 import { stickyNoteStore } from "../../../../store/stickyNote";
+import { yjsDocStore } from "../../../../store/yjsDoc";
+
+import { initYjs } from '../../../../yjs/yjs';
+import { debounce } from "../../../../hepler/utils";
 
 export function useDragStickyNote() {
-  // 记录所有的便利贴(sticky note)
-  const stickyNotes = ref<IStickyNote[]>([]);
-  // 记录所有的便利贴(sticky note)的 Yjs 数据, 用于多端同步
-  const yArrayStickyNote = ref<Y.Array<IStickyNote> | null>(null)
+  const stickyNoteHasEventSet = new Set<number>()
 
-
-  const stickyNoteHasEventSet = new Set()
-
-  const doc = new Y.Doc()
-  const initYjs = () => {
-    yArrayStickyNote.value = doc.getArray('y-array-sticky-note')
-    yArrayStickyNote.value.observe((_event: any) => {
-      const notes = yArrayStickyNote.value?.toArray() || []
-      stickyNotes.value = notes
-      notes.forEach(({ id }) => {
-        if (stickyNoteHasEventSet.has(id)) return
-        stickyNoteHasEventSet.add(id)
-        // add an event on each sticky note
-        setTimeout(() => {
-          dragStickyNote(id)
-          changeStickyNoteBodyContent(id)
-          // 为什么这里也要设置为绝对定位呢？
-          // 因为其他端接收到数据后并没有显式的设置为绝对定位, 
-          // 会导致如果当前屏幕的移动或放大之类的操作无法同步到其他端(因为其他端的元素并没有设置为绝对定位, 会导致元素无法移动或放大)
-          const stickyNote = document.querySelector('.' +createStickyNoteClassName(id)) as HTMLElement;
-          stickyNote.style.position = 'absolute'
-        }, 200)
-      })
-    })
-    // Sync clients with the y-websocket provider
-    new WebsocketProvider(
-      'ws://localhost:1234', 'sticky-note', doc
-    )
-
-    // this allows you to instantly get the (cached) documents data
-    const indexeddbProvider = new IndexeddbPersistence('sticky-note', doc)
-    indexeddbProvider.whenSynced.then(() => {
-      console.log('loaded data from indexed db')
+  const initStickyNoteYjs = () => {
+    initYjs({
+      roomname: 'sticky-note',
+      hasEventSet: stickyNoteHasEventSet,
+      observeFunc: yjsDocStore.observeYArrayStickyNote,
+      targetClassNameFunc: createStickyNoteClassName,
+      dragFunc: dragStickyNote,
+      changeBodyContentFunc: changeStickyNoteBodyContent 
     })
   }
 
+  const _modifyStickyNote = debounce(function(fn: (...args: any[]) => void) {
+    fn()
+  }, 200)
+
   const changeStickyNoteBodyContent = (id: number) => {
     const stickyNoteContent = document.querySelector('.'+createStickyNoteBodyClassName(id)) as HTMLElement
-    const index = stickyNotes.value.findIndex(note => note.id === id)
+    const index = yjsDocStore.stickyNotes.findIndex(note => note.id === id)
     if (index === -1) return
     stickyNoteContent.addEventListener('keydown', () => {
-      doc.transact(() => {
-        const trackStickyNote = yArrayStickyNote.value?.get(index)
-        if (!trackStickyNote) return
-        trackStickyNote.body = stickyNoteContent.textContent || ''
-        yArrayStickyNote.value?.delete(index)
-        yArrayStickyNote.value?.insert(index, [trackStickyNote])
-      })
+      const _changeStickyNoteBodyContent = () => {
+        yjsDocStore.doc.transact(() => {
+          const trackStickyNote = yjsDocStore.yArrayStickyNote.get(index)
+          if (!trackStickyNote) return
+          trackStickyNote.body = stickyNoteContent.textContent || ''
+          yjsDocStore.yArrayStickyNote.delete(index)
+          yjsDocStore.yArrayStickyNote.insert(index, [trackStickyNote])
+        })
+      }
+      _modifyStickyNote(_changeStickyNoteBodyContent)
     })
   }
   
   const changeStickyNoteResizeXYPosition = (id: number, newResizeX: number, newResizeY: number) => {
-    const index = stickyNotes.value.findIndex(note => note.id === id)
+    const index = yjsDocStore.stickyNotes.findIndex(note => note.id === id)
     if (index === -1) return
     // 下面代码等价于 
-    // stickyNotes.value[index].resizePosition.x = newResizeX
-    // const x = stickyNotes.value[index].resizePosition.x
-    const x = (stickyNotes.value[index].resizePosition.x = newResizeX)
-    const y = (stickyNotes.value[index].resizePosition.y = newResizeY)
-    doc.transact(() => {
-      const trackStickyNote = yArrayStickyNote.value?.get(index)
+    // yjsDocStore.stickyNotes[index].resizePosition.x = newResizeX
+    // const x = yjsDocStore.stickyNotes[index].resizePosition.x
+    const x = (yjsDocStore.stickyNotes[index].resizePosition.x = newResizeX)
+    const y = (yjsDocStore.stickyNotes[index].resizePosition.y = newResizeY)
+    yjsDocStore.doc.transact(() => {
+      const trackStickyNote = yjsDocStore.yArrayStickyNote.get(index)
       if (!trackStickyNote) return
       trackStickyNote.resizePosition.x = x
       trackStickyNote.resizePosition.y = y
-      yArrayStickyNote.value?.delete(index)
-      yArrayStickyNote.value?.insert(index, [trackStickyNote])
+      yjsDocStore.yArrayStickyNote.delete(index)
+      yjsDocStore.yArrayStickyNote.insert(index, [trackStickyNote])
     })
   }
 
   const changeStickyNoteXYPosition = (id: number, startX: number, startY: number) => {
-    const index = stickyNotes.value.findIndex(note => note.id === id)
+    const index = yjsDocStore.stickyNotes.findIndex(note => note.id === id)
     if (index === -1) return
     // 下面代码等价于 
-    // stickyNotes.value[index].dragPosition.x = startX
-    // const x = stickyNotes.value[index].dragPosition.x
-    const x = (stickyNotes.value[index].dragPosition.x = startX)
-    const y = (stickyNotes.value[index].dragPosition.y = startY)
-    doc.transact(() => {
-      const trackStickyNote = yArrayStickyNote.value?.get(index)
+    // yjsDocStore.stickyNotes[index].dragPosition.x = startX
+    // const x = yjsDocStore.stickyNotes[index].dragPosition.x
+    const x = (yjsDocStore.stickyNotes[index].dragPosition.x = startX)
+    const y = (yjsDocStore.stickyNotes[index].dragPosition.y = startY)
+    yjsDocStore.doc.transact(() => {
+      const trackStickyNote = yjsDocStore.yArrayStickyNote.get(index)
       if (!trackStickyNote) return
       trackStickyNote.dragPosition.x = x
       trackStickyNote.dragPosition.y = y
-      yArrayStickyNote.value?.delete(index)
-      yArrayStickyNote.value?.insert(index, [trackStickyNote])
+      yjsDocStore.yArrayStickyNote.delete(index)
+      yjsDocStore.yArrayStickyNote.insert(index, [trackStickyNote])
     })
   }
   const defaultResizeX = 150
@@ -111,17 +88,17 @@ export function useDragStickyNote() {
       dragPosition: { x: 0, y: 0 },
       resizePosition: { x: defaultResizeX, y: defaultResizeY }
     } 
-    stickyNotes.value.push(stickyNote)
-    yArrayStickyNote.value?.insert(0, [stickyNote])
+    yjsDocStore.stickyNotes.push(stickyNote)
+    yjsDocStore.yArrayStickyNote.insert(0, [stickyNote])
     stickyNoteStore.stickyNote.id = id
     setTimeout(() => dragStickyNote(id), 200)
   }
 
   const deleteStickyNote = (stickyNote: IStickyNote) => {
-    const index = stickyNotes.value.findIndex(note => note.id === stickyNote.id)
+    const index = yjsDocStore.stickyNotes.findIndex(note => note.id === stickyNote.id)
     if (index === -1) return
-    stickyNotes.value.splice(index)
-    yArrayStickyNote.value?.delete(index)
+    yjsDocStore.stickyNotes.splice(index)
+    yjsDocStore.yArrayStickyNote.delete(index)
     stickyNoteHasEventSet.delete(stickyNote.id)
   }
 
@@ -221,7 +198,7 @@ export function useDragStickyNote() {
 
     })
   }
-  return { dragStickyNote, createStickyNote, deleteStickyNote, initYjs, stickyNotes }
+  return { createStickyNote, deleteStickyNote, initStickyNoteYjs }
 }
 
 function getRandomColorClass() {
