@@ -1,48 +1,132 @@
-import { createMiniTextEditorBodyClassName, createMiniTextEditorClassName, createMiniTextEditorHandlerClassName, createMiniTextEditorResizerClassName, type IMiniTextEditor } from "../miniTextEditorType";
-import { miniTextEditorStore } from "../../../../../store/miniTextEditor";
-import { yjsDocStore } from "../../../../../store/yjsDoc";
+import { createMiniTextEditorBodyClassName, createMiniTextEditorClassName, createMiniTextEditorHandlerClassName, createMiniTextEditorResizerClassName, type IMiniTextEditor } from "./miniTextEditorType";
+import { miniTextEditorStore } from "../../../store/miniTextEditor";
+import { yjsDocStore } from "../../../store/yjsDoc";
 import { useEditor } from "./editor";
 
-import { initYjs } from '../../../../../yjs/yjs';
-import { debounce } from '../../../../../hepler/utils';
+import { debounce, runFuncSequentially } from '../../../hepler/utils';
+import { createBlinkingCursorClassName } from "../blinking-cursor/blinkingCursorType";
+import type { ICursor } from "../../../types";
 
 /**
  * 使用拖拽小型文本编辑器
  */
 export function useDragMiniTextEditor() {
-  const { applyBold, applyItalic, applyUnderline, applyH1, applyH2, applyH3, applyAlignCenter, applyAlignLeft, applyAlignRight, applyUnorderedList, applyLink, insertImage, highlightText } = useEditor()
+  const { initMiniTextEditor } = useEditor()
 
   const miniTextEditorHasEventSet = new Set<number>()
 
-  const initMiniTextEditorYjs = () => {
-    initYjs({
-      roomname: "mini-text-editor",
-      hasEventSet: miniTextEditorHasEventSet,
-      observeFunc: yjsDocStore.observeYArrayMiniTextEditor,
-      targetClassNameFunc: createMiniTextEditorClassName,
-      dragFunc: dragMiniTextEditor,
-      changeBodyContentFunc: changeMiniTextEditorBodyContent
-    })
+  const _modifyMiniTextEditor = debounce(function(fn: (...args: any[]) => void) { fn() }, 200)
+
+  const getCursorPosition = (editor: HTMLElement): ICursor => {
+    const selection = window.getSelection() as Selection
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0) as Range
+      const cloneRange = range.cloneRange()
+      cloneRange.selectNodeContents(editor)
+      cloneRange.setEnd(range.endContainer, range.endOffset)
+      const cursorPosition = cloneRange.toString().length
+      const rect = range.getBoundingClientRect(); // Get the position of the cursor
+      const editorRect = editor.getBoundingClientRect();
+      const x = `${rect.left - editorRect.left}px`;
+      const y = `${rect.bottom - editorRect.top + window.scrollY + 20}px`;
+      return { cursorPosition, x, y }
+    }
+    return { cursorPosition: 0, x: '0px', y: '0px' }
   }
 
-  const _modifyMiniTextEditor = debounce(function(fn: (...args: any[]) => void) { fn() }, 200)
+  const moveCursorToPosition = (editor: HTMLElement, position: number) => {
+    const selection = window.getSelection() as Selection
+    const range = document.createRange()
+    let currentPos = 0
+    // Iterate over child nodes to find the correct text node
+    for (const node of editor.childNodes) {
+      const nodeLen = (node.textContent || '').length
+      // If it's a text node, set the cursor directly
+      if (currentPos + nodeLen >= position) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          range.setStart(node, position - currentPos)
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          // For element nodes, recursively go inside its child nodes to find the correct position
+          setCursorInsideElement(node, position-currentPos, range)
+        }
+        break
+      }
+      
+      currentPos += nodeLen
+    }
+    range.collapse(true) // 使范围在起始点处
+    selection.removeAllRanges() // 清除现有的选择
+    selection.addRange(range) // 添加新的范围
+    editor.focus() // 光标聚焦
+  }
+
+  // Helper function to set cursor inside nested elements
+  const setCursorInsideElement = (element: ChildNode, position: number, range: Range) => {
+    for (const node of element.childNodes) {
+      const nodeLen = (node.textContent || '').length
+      if (position <= nodeLen) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          range.setStart(node, position)
+        } else {
+          setCursorInsideElement(node, position, range)
+        }
+        break
+      }
+      position -= nodeLen
+    }
+  }
 
   const changeMiniTextEditorBodyContent = (id: number) => {
     const miniTextEditorContent = document.querySelector('.'+createMiniTextEditorBodyClassName(id)) as HTMLElement
     const index = yjsDocStore.miniTextEditors.findIndex(editor => editor.id === id)
     if (index === -1) return
-    miniTextEditorContent.addEventListener('keydown', () => {
+
+    const _changeMiniTextEditorContentOnEvent = () => {
       const _changeMiniTextEditorBodyContent = () => {
         yjsDocStore.doc.transact(() => {
           const trackMiniTextEditor = yjsDocStore.yArrayMiniTextEditor.get(index)
           if (!trackMiniTextEditor) return
+          
           trackMiniTextEditor.body = miniTextEditorContent.innerHTML
           yjsDocStore.yArrayMiniTextEditor.delete(index)
           yjsDocStore.yArrayMiniTextEditor.insert(index, [trackMiniTextEditor])
         })
       }
-      _modifyMiniTextEditor(_changeMiniTextEditorBodyContent)
-    })
+
+      const blinkingCursor = document.querySelector(
+        "." + createBlinkingCursorClassName(id)
+      ) as HTMLElement;
+      blinkingCursor.style.display = "block";
+      const cursor = getCursorPosition(miniTextEditorContent);
+      yjsDocStore.setCursorInfo(cursor)
+
+      const getPos = () => {
+        return new Promise((resolve, _) => {
+          const curPos = getCursorPosition(miniTextEditorContent)
+          yjsDocStore.setMiniTextEditorBodyTestCursorPosition(curPos.cursorPosition)
+          _changeMiniTextEditorBodyContent()
+          resolve(null)
+        })
+      }
+
+      const setPos = () => {
+        return new Promise((resolve, _) => {
+          moveCursorToPosition(miniTextEditorContent, yjsDocStore.miniTextEditorBodyTextCursorPosition)
+          resolve(null)
+        })
+      }
+
+      const runner = () => {
+        runFuncSequentially([getPos, setPos]).then(() => {
+          console.log('All function completed in sequence.')
+        })
+      }
+      
+      _modifyMiniTextEditor(runner)
+    }
+
+    miniTextEditorContent.addEventListener('keydown', _changeMiniTextEditorContentOnEvent)
+    miniTextEditorContent.addEventListener('mouseup', _changeMiniTextEditorContentOnEvent)
   }
   
   const changeMiniTextEditorResizeXYPosition = (id: number, newResizeY: number) => {
@@ -179,22 +263,10 @@ export function useDragMiniTextEditor() {
 
     })
 
-    applyBold(id)
-    applyItalic(id)
-    applyUnderline(id)
-    applyH1(id)
-    applyH2(id)
-    applyH3(id)
-    applyAlignLeft(id)
-    applyAlignCenter(id)
-    applyAlignRight(id)
-    applyUnorderedList(id)
-    applyLink(id)
-    insertImage(id)
-    highlightText(id)
+    initMiniTextEditor(id)
   }
 
-  return { createMiniTextEditor, deleteMiniTextEditor, initMiniTextEditorYjs }
+  return { createMiniTextEditor, dragMiniTextEditor, changeMiniTextEditorBodyContent, miniTextEditorHasEventSet, deleteMiniTextEditor }
 }
 
 /**

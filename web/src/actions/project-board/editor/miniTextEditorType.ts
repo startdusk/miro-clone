@@ -14,6 +14,10 @@ export interface IMiniTextEditor {
 
 const classNamePrefix = 'text-editor'
 
+export function toolbarClassName() {
+  return 'toolbar'
+}
+
 export function createApplyHighlightTextClassName(id: number) {
   return `apply-highlight-text-${id}`
 }
@@ -58,10 +62,6 @@ export function createApplyH3ClassName(id: number) {
   return `apply-h3-${id}`
 }
 
-export function createApplyAlignClassName(id: number, alignment: 'left' | 'center' | 'right') {
-  return `apply-aligin-${alignment}-${id}`
-}
-
 export function createApplyListClassName(id: number) {
   return `apply-list-${id}`
 }
@@ -72,4 +72,19 @@ export function createApplyLinkClassName(id: number) {
 
 export function createApplyImageClassName(id: number) {
   return `apply-image-${id}`
+}
+export function createApplyAlignLeftClassName(id: number) {
+  return createApplyAlignClassName(id, 'left')
+}
+
+export function createApplyAlignCenterClassName(id: number) {
+  return createApplyAlignClassName(id, 'center')
+}
+
+export function createApplyAlignRightClassName(id: number) {
+  return createApplyAlignClassName(id, 'right')
+}
+
+export function createApplyAlignClassName(id: number, alignment: 'left' | 'center' | 'right') {
+  return `apply-aligin-${alignment}-${id}`
 }

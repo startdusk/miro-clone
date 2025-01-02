@@ -4,6 +4,7 @@ import textImg from "../../../../assets/img/text.png"
 const emit = defineEmits<{
   (e: "createStickyNote"): void;
   (e: "createMiniTextEditor"): void;
+  (e: "initDrawing"): void;
 }>();
 
 </script>
@@ -22,6 +23,7 @@ const emit = defineEmits<{
     
     <!-- 箭头 -->
     <li
+      @click="emit('initDrawing')"
       class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer"
     >
       <span class="icon pt-1">

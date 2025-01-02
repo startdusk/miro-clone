@@ -1,22 +1,65 @@
-import { yjsDocStore } from "../../../../../store/yjsDoc"
-import { createApplyAlignClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyHighlightTextClassName, createApplyImageClassName, createApplyItalicClassName, createApplyLinkClassName, createApplyListClassName, createApplyUnderlineClassName, createMiniTextEditorBodyClassName } from "../miniTextEditorType"
+import { yjsDocStore } from "../../../store/yjsDoc"
+import { createApplyAlignCenterClassName, createApplyAlignLeftClassName, createApplyAlignRightClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyHighlightTextClassName, createApplyImageClassName, createApplyItalicClassName, createApplyLinkClassName, createApplyListClassName, createApplyUnderlineClassName, createMiniTextEditorBodyClassName, toolbarClassName } from "./miniTextEditorType"
 
 export function useEditor() {
   return { 
-    applyBold,
-    applyItalic,
-    applyUnderline,
-    applyH1,
-    applyH2,
-    applyH3,
-    applyAlignCenter,
-    applyAlignLeft,
-    applyAlignRight,
-    applyUnorderedList,
-    applyLink,
-    insertImage,
-    highlightText
+    initMiniTextEditor
   }
+}
+
+/**
+ * 初始化编辑器
+ * @param id 
+ */
+function initMiniTextEditor(id: number) {
+  const toolbar = document.querySelector('.'+toolbarClassName()) as HTMLElement
+  toolbar.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const btnName = target.getAttribute('data-name')
+    const iconName = target.closest('svg')
+    const className = btnName || (iconName?.getAttribute('data-name'))
+    switch (className?.trim()) {
+      case createApplyBoldClassName(id):
+        applyBold(id)
+        break
+      case createApplyItalicClassName(id):
+        applyItalic(id)
+        break
+      case createApplyAlignLeftClassName(id):
+        applyAlignLeft(id)
+        break
+      case createApplyAlignCenterClassName(id):
+        applyAlignCenter(id)
+        break
+      case createApplyAlignRightClassName(id):
+        applyAlignRight(id)
+        break
+      case createApplyH1ClassName(id):
+        applyH1(id)
+        break
+      case createApplyH2ClassName(id):
+        applyH2(id)
+        break
+      case createApplyH3ClassName(id):
+        applyH3(id)
+        break
+      case createApplyImageClassName(id):
+        insertImage(id)
+        break
+      case createApplyLinkClassName(id):
+        applyLink(id)
+        break
+      case createApplyListClassName(id):
+        applyUnorderedList(id)
+        break
+      case createApplyUnderlineClassName(id):
+        applyUnderline(id)
+        break
+      case createApplyHighlightTextClassName(id):
+        highlightText(id)
+        break
+    }
+  })
 }
 
 /** 
@@ -77,8 +120,7 @@ function removeHightlight(range: Range) {
  * @param id id
  */
 const applyBold = (id: number) => {
-  const className = createApplyBoldClassName(id)
-  applyTag(id, 'b', className)
+  applyTag(id, 'b')
 }
 
 /**
@@ -86,8 +128,7 @@ const applyBold = (id: number) => {
  * @param id id
  */
 const applyItalic = (id: number) => {
-  const className = createApplyItalicClassName(id)
-  applyTag(id, 'i', className)
+  applyTag(id, 'i')
 }
 
 /**
@@ -95,8 +136,7 @@ const applyItalic = (id: number) => {
  * @param id id
  */
 const applyUnderline = (id: number) => {
-  const className = createApplyUnderlineClassName(id)
-  applyTag(id, 'u', className)
+  applyTag(id, 'u')
 }
 
 /**
@@ -104,8 +144,7 @@ const applyUnderline = (id: number) => {
  * @param id id
  */
 const applyH1 = (id: number) => {
-  const className = createApplyH1ClassName(id)
-  applyTag(id, 'h1', className)
+  applyTag(id, 'h1')
 }
 
 /**
@@ -113,8 +152,7 @@ const applyH1 = (id: number) => {
  * @param id id
  */
 const applyH2 = (id: number) => {
-  const className = createApplyH2ClassName(id)
-  applyTag(id, 'h2', className)
+  applyTag(id, 'h2')
 }
 
 /**
@@ -122,8 +160,7 @@ const applyH2 = (id: number) => {
  * @param id id
  */
 const applyH3 = (id: number) => {
-  const className = createApplyH3ClassName(id)
-  applyTag(id, 'h3', className)
+  applyTag(id, 'h3')
 }
 
 /**
@@ -155,8 +192,6 @@ function applyAlignCenter(id: number) {
  * @param id id
  */
 function applyUnorderedList(id: number) {
-  const apply = document.querySelector('.' + createApplyListClassName(id)) as HTMLElement
-  apply.addEventListener('click', () => {
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
@@ -177,7 +212,6 @@ function applyUnorderedList(id: number) {
     
     replicateTextFormatingWithId(id)
     selection.removeAllRanges()
-  })
 }
 
 /**
@@ -185,8 +219,6 @@ function applyUnorderedList(id: number) {
  * @param id id
  */
 function applyLink(id: number) {
-  const apply = document.querySelector('.' + createApplyLinkClassName(id)) as HTMLElement
-  apply.addEventListener('click', () => {
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
@@ -203,7 +235,6 @@ function applyLink(id: number) {
     
     replicateTextFormatingWithId(id)
     selection.removeAllRanges()
-  })
 }
 
 /**
@@ -211,8 +242,6 @@ function applyLink(id: number) {
  * @param id id
  */
 function insertImage(id: number) {
-  const apply = document.querySelector('.' + createApplyImageClassName(id)) as HTMLElement
-  apply.addEventListener('click', () => {
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
@@ -230,7 +259,6 @@ function insertImage(id: number) {
     selection.addRange(range)
     replicateTextFormatingWithId(id)
     selection.removeAllRanges()
-  })
 }
 
 
@@ -240,8 +268,6 @@ function insertImage(id: number) {
  * @param alignment 对齐类型 left | center | right
  */
 function applyAlignment(id: number, alignment: 'left' | 'center' | 'right') {
-  const apply = document.querySelector('.' + createApplyAlignClassName(id, alignment)) as HTMLElement
-  apply.addEventListener('click', () => {
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return
     const range = selection.getRangeAt(0)
@@ -264,7 +290,6 @@ function applyAlignment(id: number, alignment: 'left' | 'center' | 'right') {
     
     replicateTextFormatingWithId(id)
     selection.removeAllRanges()
-  })
 }
 
 
@@ -272,11 +297,8 @@ function applyAlignment(id: number, alignment: 'left' | 'center' | 'right') {
  * 应用标签
  * @param id id
  * @param tagName 标签名
- * @param className 类名
  */
-function applyTag(id: number, tagName: string, className: string) {
-  const apply = document.querySelector('.' + className) as HTMLElement
-  apply.addEventListener('click', () => {
+function applyTag(id: number, tagName: string) {
     // 拿到当前选中的文本
     const selection = window.getSelection() as Selection
     if (!selection || !selection.rangeCount) return
@@ -294,8 +316,6 @@ function applyTag(id: number, tagName: string, className: string) {
     replicateTextFormatingWithId(id)
     // 重要: 要清空选中
     selection.removeAllRanges()
-  })
-
 }
 
 /**

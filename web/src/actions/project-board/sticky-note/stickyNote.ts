@@ -1,23 +1,11 @@
 import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyNoteHandlerClassName, createStickyNoteResizerClassName, type IStickyNote } from "./stickyNoteType";
-import { stickyNoteStore } from "../../../../store/stickyNote";
-import { yjsDocStore } from "../../../../store/yjsDoc";
+import { stickyNoteStore } from "../../../store/stickyNote";
+import { yjsDocStore } from "../../../store/yjsDoc";
 
-import { initYjs } from '../../../../yjs/yjs';
-import { debounce } from "../../../../hepler/utils";
+import { debounce } from "../../../hepler/utils";
 
 export function useDragStickyNote() {
   const stickyNoteHasEventSet = new Set<number>()
-
-  const initStickyNoteYjs = () => {
-    initYjs({
-      roomname: 'sticky-note',
-      hasEventSet: stickyNoteHasEventSet,
-      observeFunc: yjsDocStore.observeYArrayStickyNote,
-      targetClassNameFunc: createStickyNoteClassName,
-      dragFunc: dragStickyNote,
-      changeBodyContentFunc: changeStickyNoteBodyContent 
-    })
-  }
 
   const _modifyStickyNote = debounce(function(fn: (...args: any[]) => void) {
     fn()
@@ -198,7 +186,8 @@ export function useDragStickyNote() {
 
     })
   }
-  return { createStickyNote, deleteStickyNote, initStickyNoteYjs }
+
+  return { createStickyNote, stickyNoteHasEventSet, dragStickyNote, changeStickyNoteBodyContent, createStickyNoteClassName, deleteStickyNote }
 }
 
 function getRandomColorClass() {

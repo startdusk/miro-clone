@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import { yjsDocStore } from '../../../../store/yjsDoc';
 
 import { 
-  createApplyAlignClassName,
+  toolbarClassName,
+  createApplyAlignLeftClassName,
+  createApplyAlignCenterClassName,
+  createApplyAlignRightClassName,
   createApplyBoldClassName,
   createApplyH1ClassName,
   createApplyH2ClassName,
@@ -15,7 +19,9 @@ import {
   createMiniTextEditorBodyClassName,
   createMiniTextEditorClassName, 
   createMiniTextEditorHandlerClassName,
-  createMiniTextEditorResizerClassName, type IMiniTextEditor } from '../../actions/project-board/miniTextEditorType';
+  createMiniTextEditorResizerClassName, type IMiniTextEditor } from '../../../../actions/project-board/editor/miniTextEditorType';
+
+import BlinkingCursor from './BlinkingCursor.vue';
 
 
 defineProps<{ miniTextEditors: IMiniTextEditor[]; }>();
@@ -42,52 +48,109 @@ const emit = defineEmits<{
         <ArrowTopIcon />
       </div>
     </div>
-    <div class="bg-white flex gap-3 p-2">
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyBoldClassName(miniTextEditor.id)}`">
-        <BoldIcon />
+    <div :class="`bg-white flex gap-3 p-2 ${toolbarClassName()}`">
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyBoldClassName(miniTextEditor.id)}`"
+      >
+        <BoldIcon
+          :data-name="`${createApplyBoldClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyItalicClassName(miniTextEditor.id)}`">
-        <ItalicIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyItalicClassName(miniTextEditor.id)}`"
+      >
+        <ItalicIcon 
+          :data-name="`${createApplyItalicClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyUnderlineClassName(miniTextEditor.id)}`">
-        <UnderlineIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyUnderlineClassName(miniTextEditor.id)}`"
+      >
+        <UnderlineIcon 
+          :data-name="`${createApplyUnderlineClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyH1ClassName(miniTextEditor.id)}`">
-        <H1Icon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyH1ClassName(miniTextEditor.id)}`"
+      >
+        <H1Icon 
+          :data-name="`${createApplyH1ClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyH2ClassName(miniTextEditor.id)}`">
-        <H2Icon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyH2ClassName(miniTextEditor.id)}`"
+      >
+        <H2Icon 
+          :data-name="`${createApplyH2ClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyH3ClassName(miniTextEditor.id)}`">
-        <H3Icon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyH3ClassName(miniTextEditor.id)}`"
+      >
+        <H3Icon 
+          :data-name="`${createApplyH3ClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAlignClassName(miniTextEditor.id, 'left')}`">
-        <AlignLeftIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyAlignLeftClassName(miniTextEditor.id)}`"
+      >
+        <AlignLeftIcon 
+          :data-name="`${createApplyAlignLeftClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAlignClassName(miniTextEditor.id, 'center')}`">
-        <AlignCenterIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyAlignCenterClassName(miniTextEditor.id)}`"
+      >
+        <AlignCenterIcon 
+          :data-name="`${createApplyAlignCenterClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyAlignClassName(miniTextEditor.id, 'right')}`">
-        <AlignRightIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyAlignRightClassName(miniTextEditor.id)}`"
+      >
+        <AlignRightIcon 
+          :data-name="`${createApplyAlignRightClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyListClassName(miniTextEditor.id)}`">
-        <ListIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyListClassName(miniTextEditor.id)}`"
+      >
+        <ListIcon 
+          :data-name="`${createApplyListClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyLinkClassName(miniTextEditor.id)}`">
-        <LinkIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="createApplyLinkClassName(miniTextEditor.id)"
+      >
+        <LinkIcon 
+          :data-name="createApplyLinkClassName(miniTextEditor.id)"
+        />
       </button>
-      <button :class="`hover:bg-slate-100 py-1 px-1 rounded-md ${createApplyImageClassName(miniTextEditor.id)}`">
-        <ImageIcon />
+      <button class="hover:bg-slate-100 py-1 px-1 rounded-md"
+        :data-name="`${createApplyImageClassName(miniTextEditor.id)}`"
+      >
+        <ImageIcon 
+          :data-name="`${createApplyImageClassName(miniTextEditor.id)}`"
+        />
       </button>
-      <button :class="`hover:bg-yellow-200 bg-yellow-300 w-6 h-4 text-xs py-1 px-1 pt-4 rounded-md ${createApplyHighlightTextClassName(miniTextEditor.id)}`">
+      <button class="hover:bg-yellow-200 bg-yellow-300 w-6 h-4 text-xs py-1 px-1 pt-4 rounded-md"
+        :data-name="`${createApplyHighlightTextClassName(miniTextEditor.id)}`"
+      >
       </button>
     </div>
+    <BlinkingCursor 
+        :miniTextEditorId="miniTextEditor.id" 
+        :x="yjsDocStore.cursor.x"
+        :y="yjsDocStore.cursor.y"
+        />
     <div 
       v-html="miniTextEditor.body"
-      :class="`card-body w-full h-full p-2 bg-white ${createMiniTextEditorBodyClassName(miniTextEditor.id)}`" contenteditable="true">
+      :class="`card-body w-full h-full p-2 bg-white ${createMiniTextEditorBodyClassName(miniTextEditor.id)}`" contenteditable="true"
+      >
     </div>
     <div class="flex justify-end">
-      <div :class="`cursor-nw-resize ${createMiniTextEditorResizerClassName(miniTextEditor.id)}`">
+      <div :class="`cursor-nw-resize ${createMiniTextEditorResizerClassName(miniTextEditor.id)}`"
+      >
         <ArrowDownIcon />
       </div>
     </div>
