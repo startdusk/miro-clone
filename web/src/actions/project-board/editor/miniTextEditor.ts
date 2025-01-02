@@ -3,9 +3,8 @@ import { miniTextEditorStore } from "../../../store/miniTextEditor";
 import { yjsDocStore } from "../../../store/yjsDoc";
 import { useEditor } from "./editor";
 
-import { debounce, runFuncSequentially } from '../../../hepler/utils';
+import { debounce, getCursorPosition, moveCursorToPosition, runFuncSequentially } from '../../../hepler/utils';
 import { createBlinkingCursorClassName } from "../blinking-cursor/blinkingCursorType";
-import type { ICursor } from "../../../types";
 
 /**
  * 使用拖拽小型文本编辑器
@@ -17,64 +16,7 @@ export function useDragMiniTextEditor() {
 
   const _modifyMiniTextEditor = debounce(function(fn: (...args: any[]) => void) { fn() }, 200)
 
-  const getCursorPosition = (editor: HTMLElement): ICursor => {
-    const selection = window.getSelection() as Selection
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0) as Range
-      const cloneRange = range.cloneRange()
-      cloneRange.selectNodeContents(editor)
-      cloneRange.setEnd(range.endContainer, range.endOffset)
-      const cursorPosition = cloneRange.toString().length
-      const rect = range.getBoundingClientRect(); // Get the position of the cursor
-      const editorRect = editor.getBoundingClientRect();
-      const x = `${rect.left - editorRect.left}px`;
-      const y = `${rect.bottom - editorRect.top + window.scrollY + 20}px`;
-      return { cursorPosition, x, y }
-    }
-    return { cursorPosition: 0, x: '0px', y: '0px' }
-  }
 
-  const moveCursorToPosition = (editor: HTMLElement, position: number) => {
-    const selection = window.getSelection() as Selection
-    const range = document.createRange()
-    let currentPos = 0
-    // Iterate over child nodes to find the correct text node
-    for (const node of editor.childNodes) {
-      const nodeLen = (node.textContent || '').length
-      // If it's a text node, set the cursor directly
-      if (currentPos + nodeLen >= position) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          range.setStart(node, position - currentPos)
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-          // For element nodes, recursively go inside its child nodes to find the correct position
-          setCursorInsideElement(node, position-currentPos, range)
-        }
-        break
-      }
-      
-      currentPos += nodeLen
-    }
-    range.collapse(true) // 使范围在起始点处
-    selection.removeAllRanges() // 清除现有的选择
-    selection.addRange(range) // 添加新的范围
-    editor.focus() // 光标聚焦
-  }
-
-  // Helper function to set cursor inside nested elements
-  const setCursorInsideElement = (element: ChildNode, position: number, range: Range) => {
-    for (const node of element.childNodes) {
-      const nodeLen = (node.textContent || '').length
-      if (position <= nodeLen) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          range.setStart(node, position)
-        } else {
-          setCursorInsideElement(node, position, range)
-        }
-        break
-      }
-      position -= nodeLen
-    }
-  }
 
   const changeMiniTextEditorBodyContent = (id: number) => {
     const miniTextEditorContent = document.querySelector('.'+createMiniTextEditorBodyClassName(id)) as HTMLElement
@@ -118,7 +60,7 @@ export function useDragMiniTextEditor() {
 
       const runner = () => {
         runFuncSequentially([getPos, setPos]).then(() => {
-          console.log('All function completed in sequence.')
+          console.log('mini text editor: all function completed in sequence.')
         })
       }
       

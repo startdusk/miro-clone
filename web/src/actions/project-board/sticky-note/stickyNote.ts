@@ -2,7 +2,7 @@ import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyN
 import { stickyNoteStore } from "../../../store/stickyNote";
 import { yjsDocStore } from "../../../store/yjsDoc";
 
-import { debounce } from "../../../hepler/utils";
+import { debounce, getCursorPosition, moveCursorToPosition, runFuncSequentially } from "../../../hepler/utils";
 
 export function useDragStickyNote() {
   const stickyNoteHasEventSet = new Set<number>()
@@ -15,7 +15,7 @@ export function useDragStickyNote() {
     const stickyNoteContent = document.querySelector('.'+createStickyNoteBodyClassName(id)) as HTMLElement
     const index = yjsDocStore.stickyNotes.findIndex(note => note.id === id)
     if (index === -1) return
-    stickyNoteContent.addEventListener('keydown', () => {
+    const _changeStickyNoteBodyContentOnEvent = () => {
       const _changeStickyNoteBodyContent = () => {
         yjsDocStore.doc.transact(() => {
           const trackStickyNote = yjsDocStore.yArrayStickyNote.get(index)
@@ -25,8 +25,34 @@ export function useDragStickyNote() {
           yjsDocStore.yArrayStickyNote.insert(index, [trackStickyNote])
         })
       }
-      _modifyStickyNote(_changeStickyNoteBodyContent)
-    })
+
+      const getPos = () => {
+        return new Promise((resolve, _) => {
+          const curPos = getCursorPosition(stickyNoteContent)
+          yjsDocStore.setStickyNoteBodyTestCursorPosition(curPos.cursorPosition)
+          _changeStickyNoteBodyContent()
+          resolve(null)
+        })
+      }
+
+      const setPos = () => {
+        return new Promise((resolve, _) => {
+          moveCursorToPosition(stickyNoteContent, yjsDocStore.stickyNoteBodyTextCursorPosition)
+          resolve(null)
+        })
+      }
+
+      const runner = () => {
+        runFuncSequentially([getPos, setPos]).then(() => {
+          console.log('sticky note: all function completed in sequence.')
+        })
+      }
+      
+      _modifyStickyNote(runner)
+    }
+
+    stickyNoteContent.addEventListener('keydown', _changeStickyNoteBodyContentOnEvent)
+    stickyNoteContent.addEventListener('mouseup', _changeStickyNoteBodyContentOnEvent)
   }
   
   const changeStickyNoteResizeXYPosition = (id: number, newResizeX: number, newResizeY: number) => {

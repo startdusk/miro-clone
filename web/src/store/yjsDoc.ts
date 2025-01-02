@@ -12,6 +12,7 @@ const useYjsDocStore = defineStore('yjsDoc', {
     miniTextEditors: [] as IMiniTextEditor[],
     yArrayMiniTextEditor: new Y.Array<IMiniTextEditor>(),
     
+    stickyNoteBodyTextCursorPosition: 0,
     miniTextEditorBodyTextCursorPosition: 0,
     mousePosition: {
       username:'benjamin',
@@ -48,6 +49,9 @@ const useYjsDocStore = defineStore('yjsDoc', {
     },
     setMiniTextEditorBodyTestCursorPosition(position: number) {
       this.miniTextEditorBodyTextCursorPosition = position
+    },
+    setStickyNoteBodyTestCursorPosition(position: number) {
+      this.stickyNoteBodyTextCursorPosition = position
     },
     setCursorInfo(cursor: ICursor) {
       const { cursorPosition, x, y } = cursor
