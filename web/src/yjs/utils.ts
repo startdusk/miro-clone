@@ -1,13 +1,16 @@
 import { yjsDocStore } from "../store/yjsDoc";
 import { useDragMiniTextEditor } from "../actions/project-board/editor/miniTextEditor"; 
 import { useDragStickyNote } from "../actions/project-board/sticky-note/stickyNote";
+import { useDragTextCaption } from "../actions/project-board/text-caption/textCaption";
 import { createMiniTextEditorClassName } from "../actions/project-board/editor/miniTextEditorType";
 import { createStickyNoteClassName } from "../actions/project-board/sticky-note/stickyNoteType";
 import { useCanvas } from "../actions/project-board/canvas/canvas";
+import { createTextCaptionClassName } from "../actions/project-board/text-caption/textCaptionTypes";
 
 const { initCanvas } = useCanvas()
 const { dragMiniTextEditor, changeMiniTextEditorBodyContent, miniTextEditorHasEventSet  } = useDragMiniTextEditor()
 const { dragStickyNote, changeStickyNoteBodyContent, stickyNoteHasEventSet } = useDragStickyNote()
+const { dragTextCaption, changeTextCaptionBodyContent, textCaptionHasEventSet } = useDragTextCaption()
 
 export const initCursor = () =>{
   return new Promise((resolve, _reject) =>{
@@ -56,11 +59,11 @@ export const initStickyNote = () => {
 export const initTextCaption = () => {
   return new Promise((resolve, _reject) =>{
       initYjsFunc({
-        observeFunc: yjsDocStore.observeYArrayStickyNote,
-        hasEventSet: stickyNoteHasEventSet,
-        targetClassNameFunc: createStickyNoteClassName,
-        dragFunc: dragStickyNote,
-        changeBodyContentFunc: changeStickyNoteBodyContent
+        observeFunc: yjsDocStore.observeYArrayTextCaption,
+        hasEventSet: textCaptionHasEventSet,
+        targetClassNameFunc: createTextCaptionClassName,
+        dragFunc: dragTextCaption,
+        changeBodyContentFunc: changeTextCaptionBodyContent
       })
       resolve(null)
   })

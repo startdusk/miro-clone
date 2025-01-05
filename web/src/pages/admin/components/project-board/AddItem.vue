@@ -4,12 +4,14 @@ import textImg from "../../../../assets/img/text.png"
 const emit = defineEmits<{
   (e: "createStickyNote"): void;
   (e: "createMiniTextEditor"): void;
+  (e: "createTextCaption"): void;
   (e: "initDrawing"): void;
 }>();
 
 </script>
 <template>
   <ul
+    @click="emit('createTextCaption')"
     class="flex flex-col px-2 bg-white mt-20 mb-2 gap-2 p-2 rounded-md shadow-md"
   >
     <!-- 文字 -->

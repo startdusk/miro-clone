@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type ITextCaption } from '../../../../actions/project-board/text-caption/textCaptionTypes';
+import { createTextCaptionBodyClassName, createTextCaptionClassName, createTextCaptionHandlerClassName, createTextCaptionResizerClassName, type ITextCaption } from '../../../../actions/project-board/text-caption/textCaptionTypes';
 
 defineProps<{
   textCaptions: ITextCaption[];
@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 <template>
   <div
-    v-for="textCaption in textCaptions"
+    v-for="textCaption of textCaptions"
     :key="textCaption.id"
     :style="{
       position: 'absolute',
@@ -22,9 +22,8 @@ const emit = defineEmits<{
       height: textCaption.resizePosition.y + 'px',
     }"
     :class="
-      'flex flex-col  min-h-30 w-[200px] shadow-md  p-1 rounded-md cursor-pointer text-caption-' +
-      textCaption.id +
-      ' '
+      `flex flex-col min-h-30 w-[200px] shadow-md  p-1 rounded-md cursor-pointer
+      ${createTextCaptionClassName(textCaption.id)}`
     "
   >
     <div class="card-header flex justify-between">
@@ -37,8 +36,8 @@ const emit = defineEmits<{
 
       <div
         :class="
-          'hover:bg-slate-100 text-caption-handler px-1 py-1 rounded-md text-caption-handler-' +
-          textCaption.id
+          `hover:bg-slate-100 text-caption-handler px-1 py-1 rounded-md
+          ${createTextCaptionHandlerClassName(textCaption.id)}`
         "
       >
         <ArrowTopIcon></ArrowTopIcon>
@@ -46,15 +45,15 @@ const emit = defineEmits<{
     </div>
     <div
       :class="
-        'card-body w-full bg-white h-full border-none outline-none p-2 font-bold text-caption-body-' +
-        textCaption.id
+        `card-body w-full bg-white h-full border-none outline-none p-2 font-bold
+        ${createTextCaptionBodyClassName(textCaption.id)}`
       "
       contenteditable="true"
     >
       {{ textCaption.body }}
     </div>
     <div class="flex justify-end">
-      <div :class="'cursor-nw-resize text-caption-resizer-' + textCaption.id">
+      <div :class="`cursor-nw-resize ${createTextCaptionResizerClassName(textCaption.id)}`">
         <ArrowDownIcon />
       </div>
     </div>

@@ -213,7 +213,7 @@ export function useDragStickyNote() {
     })
   }
 
-  return { createStickyNote, stickyNoteHasEventSet, dragStickyNote, changeStickyNoteBodyContent, createStickyNoteClassName, deleteStickyNote }
+  return { createStickyNote, stickyNoteHasEventSet, dragStickyNote, changeStickyNoteBodyContent, deleteStickyNote }
 }
 
 function getRandomColorClass() {

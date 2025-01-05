@@ -3,17 +3,28 @@ import * as Y from 'yjs';
 import type { IMiniTextEditor } from "../actions/project-board/editor/miniTextEditorType";
 import type { IStickyNote } from "../actions/project-board/sticky-note/stickyNoteType";
 import { type ICursor, type IReplayDrawing } from "../types";
+import type { ITextCaption } from "../actions/project-board/text-caption/textCaptionTypes";
 
 const useYjsDocStore = defineStore('yjsDoc', {
   state: () => ({
+    loading: false,
     doc: new Y.Doc(),
+
+    // sticky note
     stickyNotes: [] as IStickyNote[],
     yArrayStickyNote: new Y.Array<IStickyNote>(),
+    stickyNoteBodyTextCursorPosition: 0,
+    
+    // mini text editor
     miniTextEditors: [] as IMiniTextEditor[],
     yArrayMiniTextEditor: new Y.Array<IMiniTextEditor>(),
-    
-    stickyNoteBodyTextCursorPosition: 0,
     miniTextEditorBodyTextCursorPosition: 0,
+
+    // text caption
+    textCaptions: [] as ITextCaption[],
+    yArrayTextCaption: new Y.Array<ITextCaption>(),
+    textCaptionBodyTextCursorPostion: 0,
+    
     mousePosition: {
       username:'benjamin',
       x: 0,
@@ -37,6 +48,7 @@ const useYjsDocStore = defineStore('yjsDoc', {
     init() {
       this.yArrayStickyNote = this.doc.getArray('y-array-sticky-note') as Y.Array<IStickyNote>
       this.yArrayMiniTextEditor = this.doc.getArray('y-array-mini-text-editor') as Y.Array<IMiniTextEditor>
+      this.yArrayTextCaption = this.doc.getArray('y-array-text-caption') as Y.Array<ITextCaption>
       this.yArrayDrawing = this.doc.getArray('y-array-drawing') as Y.Array<Array<IReplayDrawing>>
       this.yMapCursor = this.doc.getMap('y-map-cursor') as Y.Map<string>
       this.yMapMouse = this.doc.getMap('y-map-mouse') as Y.Map<number>
@@ -52,6 +64,9 @@ const useYjsDocStore = defineStore('yjsDoc', {
     },
     setStickyNoteBodyTestCursorPosition(position: number) {
       this.stickyNoteBodyTextCursorPosition = position
+    },
+    setTextCaptionBodyTestCursorPosition(position: number) {
+      this.textCaptionBodyTextCursorPostion = position
     },
     setCursorInfo(cursor: ICursor) {
       const { cursorPosition, x, y } = cursor
@@ -75,6 +90,15 @@ const useYjsDocStore = defineStore('yjsDoc', {
       this.yArrayMiniTextEditor.observe((_event: any) => {
         const array = this.yArrayMiniTextEditor.toArray() || []
         this.miniTextEditors = array
+        array.forEach(({id}) => {
+          fn(id)
+        })
+      })
+    },
+    observeYArrayTextCaption(fn: (id: number) => void) {
+      this.yArrayTextCaption.observe((_event: any) => {
+        const array = this.yArrayTextCaption.toArray() || []
+        this.textCaptions = array
         array.forEach(({id}) => {
           fn(id)
         })
