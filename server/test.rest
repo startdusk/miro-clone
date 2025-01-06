@@ -1,0 +1,7 @@
+### Miro-Clone
+
+@baseUrl = http://localhost:18888
+
+### get github oauth authorize url
+GET {{baseUrl}}/auth/github/authorize
+

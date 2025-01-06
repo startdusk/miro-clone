@@ -6,6 +6,12 @@ use std::{env, fs::File};
 pub struct AppConfig {
     pub server: ServerConfig,
     pub auth: AuthConfig,
+    pub oauth: OAuthConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct OAuthConfig {
+    pub github: Github,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +24,16 @@ pub struct AuthConfig {
 pub struct ServerConfig {
     pub port: u16,
     pub db_url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Github {
+    pub client_id: String,
+    pub client_secret: String,
+    pub auth_url: String,
+    pub token_url: String,
+    pub redirect_url: String,
+    pub scopes: Vec<String>,
 }
 
 impl AppConfig {

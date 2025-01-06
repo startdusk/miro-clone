@@ -4,11 +4,13 @@ mod error;
 mod handlers;
 mod middlewares;
 mod models;
+mod oauth;
 mod utils;
 
 use axum::{http::Method, routing::get};
 
 use anyhow::Context;
+use oauth::OAuthClient;
 use sqlx::PgPool;
 use tower_http::cors::{self, CorsLayer};
 
@@ -32,6 +34,8 @@ pub struct AppStateInner {
     pub(crate) ek: EncodingKey,
     pub(crate) dk: DecodingKey,
     pub(crate) pool: PgPool,
+
+    pub(crate) oauth_client: OAuthClient,
 }
 
 pub async fn get_router(state: AppState) -> Result<Router, AppError> {
@@ -50,6 +54,8 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
 
     let app = Router::new()
         .route("/", get(index_handler))
+        .route("/auth/{app_name}/authorize", get(oauth_authorize_handler))
+        .route("/auth/{app_name}/callback", get(oauth_callback_handler))
         .nest("/api", api)
         .with_state(state);
     Ok(app)
@@ -70,12 +76,16 @@ impl AppState {
             .context("connect db failed")?;
         let dk = DecodingKey::load(&config.auth.pk).context("load pk failed")?;
         let ek = EncodingKey::load(&config.auth.sk).context("load sk failed")?;
+        let oauth_github_client = config.oauth.github.new_oauth_client()?;
         Ok(AppState {
             inner: Arc::new(AppStateInner {
                 config,
                 dk,
                 ek,
                 pool,
+                oauth_client: OAuthClient {
+                    github: oauth_github_client,
+                },
             }),
         })
     }

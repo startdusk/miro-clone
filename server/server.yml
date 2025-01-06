@@ -2,6 +2,17 @@ server:
   port: 18888
   db_url: postgres://postgres:postgres@localhost/miro-clone
 
+oauth:
+  github:
+    client_id: Ov23liiAZEk34nr6qcmt
+    client_secret: 06fd8ec2183b97c31c27fb945edfbdc9dd3c527d
+    auth_url: https://github.com/login/oauth/authorize
+    token_url: https://github.com/login/oauth/access_token
+    redirect_url: http://localhost:18888/auth/github/callback
+    scopes: 
+      - public_repo
+      - user:email
+
 auth:
   sk: |
     -----BEGIN PRIVATE KEY-----

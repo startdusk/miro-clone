@@ -32,6 +32,15 @@ pub enum AppError {
 
     #[error("{0}")]
     UnAuthorization(String),
+
+    #[error("{0}")]
+    InvalidPathName(String),
+
+    #[error("Parse url error: {0}")]
+    UrlParseError(#[from] url::ParseError),
+
+    #[error("reqwest error: {0}")]
+    ReqwestError(#[from] reqwest::Error),
 }
 
 impl ErrorOutput {
@@ -46,9 +55,10 @@ impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
         let status = match &self {
             Self::HttpHeaderError(_) | Self::MultipartError(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::SqlxError(_) | Self::AnyError(_) | Self::IoError(_) => {
+            Self::SqlxError(_) | Self::AnyError(_) | Self::IoError(_) | Self::UrlParseError(_) => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }
+            Self::InvalidPathName(_) | Self::ReqwestError(_) => StatusCode::BAD_REQUEST, // 400
             Self::EmailAlreadyExists(_) => StatusCode::CONFLICT,
 
             Self::NotFound(_) => StatusCode::NOT_FOUND,
