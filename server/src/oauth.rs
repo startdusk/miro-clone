@@ -7,7 +7,12 @@ use oauth2::{
 };
 use url::Url;
 
-use crate::{config::Github, error::AppError, AppState};
+use crate::{
+    config::Github,
+    dto::{AuthUser, GithubUser},
+    error::AppError,
+    AppState,
+};
 
 #[derive(Debug)]
 pub enum OAuthApp {
@@ -28,67 +33,67 @@ impl TryFrom<String> for OAuthApp {
 }
 
 pub struct OAuthClient {
-    pub(crate) github: BasicClient,
+    pub(crate) github: GithubClient,
+}
+
+pub struct GithubClient {
+    client: BasicClient,
+    scopes: Option<Vec<String>>,
 }
 
 impl OAuthClient {
-    pub fn get_authorize_url(&self, app: OAuthApp, scopes: Option<&Vec<String>>) -> Url {
+    pub fn get_authorize_url(&self, app: &OAuthApp) -> Url {
         match app {
-            OAuthApp::Github => {
-                // Generate the authorization URL to which we'll redirect the user.
-                let mut authorize_url = self.github.authorize_url(CsrfToken::new_random);
-                if let Some(scopes) = scopes {
-                    // Add the scopes to the URL.
-                    let mut new_scopes = Vec::new();
-                    scopes.iter().for_each(|scope| {
-                        new_scopes.push(Scope::new(scope.clone()));
-                    });
-                    authorize_url = authorize_url.add_scopes(new_scopes);
-                }
-                let (authorize_url, _csrf_state) = authorize_url.url();
-                authorize_url
-            }
+            OAuthApp::Github => self.github.get_authorize_url(),
             OAuthApp::Google => unimplemented!(),
         }
     }
 
     pub async fn get_access_token(
         &self,
-        app: OAuthApp,
+        app: &OAuthApp,
         code: AuthorizationCode,
     ) -> Result<String, AppError> {
         match app {
-            OAuthApp::Github => {
-                let token_res = self
-                    .github
-                    .exchange_code(code)
-                    .request_async(&async_http_client)
-                    .await
-                    .map_err(|err| {
-                        AppError::AnyError(anyhow!("Failed to get access token: {:?}", err))
-                    })?;
-                Ok(token_res.access_token().secret().to_string())
-            }
+            OAuthApp::Github => self.github.get_access_token(code).await,
             OAuthApp::Google => unimplemented!(),
         }
     }
 }
 
 impl AppState {
-    pub fn get_authorize_url(&self, app: OAuthApp) -> String {
-        let scopes = match app {
-            OAuthApp::Github => Some(&self.config.oauth.github.scopes),
-            OAuthApp::Google => None,
-        };
-        self.oauth_client.get_authorize_url(app, scopes).to_string()
+    pub fn get_authorize_url(&self, app: &OAuthApp) -> String {
+        self.oauth_client.get_authorize_url(app).to_string()
     }
 
     pub async fn get_access_token(
         &self,
-        app: OAuthApp,
+        app: &OAuthApp,
         code: AuthorizationCode,
     ) -> Result<String, AppError> {
         self.oauth_client.get_access_token(app, code).await
+    }
+
+    pub async fn get_auth_user(
+        &self,
+        app: &OAuthApp,
+        access_token: String,
+    ) -> Result<AuthUser, AppError> {
+        match app {
+            OAuthApp::Github => {
+                // 使用访问令牌获取用户信息
+                let github_user: GithubUser = reqwest::Client::new()
+                    .get("https://api.github.com/user")
+                    .header("User-Agent", "Miro-Clone")
+                    .bearer_auth(access_token)
+                    .send()
+                    .await?
+                    .json()
+                    .await?;
+                Ok(github_user.into())
+            }
+            OAuthApp::Google => unimplemented!(),
+        }
     }
 }
 
@@ -115,5 +120,32 @@ impl fmt::Display for OAuthApp {
             OAuthApp::Github => write!(f, "github"),
             OAuthApp::Google => write!(f, "google"),
         }
+    }
+}
+
+impl GithubClient {
+    pub fn new(client: BasicClient, scopes: Option<Vec<String>>) -> Self {
+        Self { client, scopes }
+    }
+
+    pub fn get_authorize_url(&self) -> Url {
+        let mut authorize_url = self.client.authorize_url(CsrfToken::new_random);
+        if let Some(scopes) = &self.scopes {
+            for scope in scopes {
+                authorize_url = authorize_url.add_scope(Scope::new(scope.to_string()));
+            }
+        }
+        let (authorize_url, _csrf_state) = authorize_url.url();
+        authorize_url
+    }
+
+    pub async fn get_access_token(&self, code: AuthorizationCode) -> Result<String, AppError> {
+        let token_res = self
+            .client
+            .exchange_code(code)
+            .request_async(&async_http_client)
+            .await
+            .map_err(|err| AppError::AnyError(anyhow!("Failed to get access token: {:?}", err)))?;
+        Ok(token_res.access_token().secret().to_string())
     }
 }

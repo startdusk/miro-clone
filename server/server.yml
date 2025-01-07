@@ -10,7 +10,6 @@ oauth:
     token_url: https://github.com/login/oauth/access_token
     redirect_url: http://localhost:18888/auth/github/callback
     scopes: 
-      - public_repo
       - user:email
 
 auth:

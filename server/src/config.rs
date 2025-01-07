@@ -33,7 +33,7 @@ pub struct Github {
     pub auth_url: String,
     pub token_url: String,
     pub redirect_url: String,
-    pub scopes: Vec<String>,
+    pub scopes: Option<Vec<String>>,
 }
 
 impl AppConfig {

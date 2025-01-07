@@ -10,11 +10,11 @@ mod utils;
 use axum::{http::Method, routing::get};
 
 use anyhow::Context;
-use oauth::OAuthClient;
+use oauth::{GithubClient, OAuthClient};
 use sqlx::PgPool;
 use tower_http::cors::{self, CorsLayer};
 
-use std::{fmt, ops::Deref, sync::Arc};
+use std::{fmt, mem, ops::Deref, sync::Arc};
 
 use axum::Router;
 pub use config::AppConfig;
@@ -70,12 +70,13 @@ impl Deref for AppState {
 }
 
 impl AppState {
-    pub async fn try_new(config: AppConfig) -> Result<Self, AppError> {
+    pub async fn try_new(mut config: AppConfig) -> Result<Self, AppError> {
         let pool = PgPool::connect(&config.server.db_url)
             .await
             .context("connect db failed")?;
         let dk = DecodingKey::load(&config.auth.pk).context("load pk failed")?;
         let ek = EncodingKey::load(&config.auth.sk).context("load sk failed")?;
+        let github_scopes = mem::take(&mut config.oauth.github.scopes);
         let oauth_github_client = config.oauth.github.new_oauth_client()?;
         Ok(AppState {
             inner: Arc::new(AppStateInner {
@@ -84,7 +85,7 @@ impl AppState {
                 ek,
                 pool,
                 oauth_client: OAuthClient {
-                    github: oauth_github_client,
+                    github: GithubClient::new(oauth_github_client, github_scopes),
                 },
             }),
         })

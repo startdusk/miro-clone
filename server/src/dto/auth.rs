@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use oauth2::{AuthorizationCode, CsrfToken};
 
+use crate::oauth::OAuthApp;
+
 /// Request to get the authorization URL
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthorizeUrlResponse {
@@ -33,4 +35,47 @@ pub struct GithubUser {
     pub name: Option<String>,
     pub email: Option<String>,
     pub avatar_url: String,
+}
+
+//  Checkout available fields on: https://developers.google.com/identity/openid-connect/openid-connect
+#[derive(Default, Serialize, Deserialize)]
+pub struct GoogleUser {
+    /// 用户的标识符，在所有 Google 账号中必须具有唯一性，并且不得重复使用。Google 账号在不同的时间点可以有多个电子邮件地址，但 sub 值始终保持不变。在应用中使用 sub 作为用户的唯一标识符键。长度上限为 255 个区分大小写的 ASCII 字符。
+    sub: String,
+    /// 用户的全名（采用可显示的形式）
+    name: String,
+    email: Option<String>,
+    email_verified: Option<bool>,
+    /// 用户个人资料照片的网址
+    picture: String,
+}
+
+#[derive(Debug)]
+pub struct AuthUser {
+    pub account_id: String,
+    pub provider: OAuthApp,
+    pub username: String,
+    pub image_url: Option<String>,
+}
+
+impl From<GithubUser> for AuthUser {
+    fn from(user: GithubUser) -> Self {
+        Self {
+            account_id: user.id.to_string(),
+            provider: OAuthApp::Github,
+            username: user.name.unwrap_or("<unknow>".to_string()),
+            image_url: Some(user.avatar_url),
+        }
+    }
+}
+
+impl From<GoogleUser> for AuthUser {
+    fn from(user: GoogleUser) -> Self {
+        Self {
+            account_id: user.sub,
+            provider: OAuthApp::Google,
+            username: user.name,
+            image_url: Some(user.picture),
+        }
+    }
 }
