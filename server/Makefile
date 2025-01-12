@@ -12,3 +12,6 @@ init:
 genkey:
 	@openssl genpkey -algorithm ed25519 -out encoding.pem
 	@openssl pkey -in encoding.pem -pubout -out decoding.pem
+
+migrate:
+	DATABASE_URL=postgres://postgres:postgres@localhost/miro-clone sqlx migrate run

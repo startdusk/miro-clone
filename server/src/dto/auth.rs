@@ -50,12 +50,17 @@ pub struct GoogleUser {
     picture: String,
 }
 
+/// OAuth 认证后的用户信息
 #[derive(Debug)]
 pub struct AuthUser {
+    /// 账户ID
     pub account_id: String,
+    /// OAuth提供方
     pub provider: OAuthApp,
+    /// 用户昵称
     pub username: String,
-    pub image_url: Option<String>,
+    /// 用户头像
+    pub avatar: Option<String>,
 }
 
 impl From<GithubUser> for AuthUser {
@@ -64,7 +69,7 @@ impl From<GithubUser> for AuthUser {
             account_id: user.id.to_string(),
             provider: OAuthApp::Github,
             username: user.name.unwrap_or("<unknow>".to_string()),
-            image_url: Some(user.avatar_url),
+            avatar: Some(user.avatar_url),
         }
     }
 }
@@ -75,7 +80,7 @@ impl From<GoogleUser> for AuthUser {
             account_id: user.sub,
             provider: OAuthApp::Google,
             username: user.name,
-            image_url: Some(user.picture),
+            avatar: Some(user.picture),
         }
     }
 }
