@@ -19,6 +19,7 @@ use std::{fmt, mem, ops::Deref, sync::Arc};
 use axum::Router;
 pub use config::AppConfig;
 use error::AppError;
+pub use models::*;
 
 use handlers::*;
 use utils::{DecodingKey, EncodingKey};
@@ -50,13 +51,14 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
         .allow_headers(cors::Any)
         .allow_origin(cors::Any);
 
-    let api = Router::new().layer(cors);
+    let api = Router::new();
 
     let app = Router::new()
         .route("/", get(index_handler))
         .route("/auth/{app_name}/authorize", get(oauth_authorize_handler))
         .route("/auth/{app_name}/callback", get(oauth_callback_handler))
         .nest("/api", api)
+        .layer(cors)
         .with_state(state);
     Ok(app)
 }
@@ -100,19 +102,21 @@ impl fmt::Debug for AppStateInner {
     }
 }
 
-#[cfg(feature = "test-util")]
-mod test_util {
+#[cfg(test)]
+pub mod test_util {
     use super::*;
     use sqlx::Executor;
     use sqlx_db_tester::TestPg;
 
     impl AppState {
         pub async fn new_for_test() -> Result<(TestPg, Self), AppError> {
-            let config = AppConfig::load()?;
+            let mut config = AppConfig::load()?;
             let dk = DecodingKey::load(&config.auth.pk).context("load pk failed")?;
             let ek = EncodingKey::load(&config.auth.sk).context("load sk failed")?;
             let post = config.server.db_url.rfind('/').expect("invalid db_url");
             let server_url = &config.server.db_url[..post];
+            let github_scopes = mem::take(&mut config.oauth.github.scopes);
+            let oauth_github_client = config.oauth.github.new_oauth_client()?;
             let (tdb, pool) = get_test_pool(Some(server_url)).await;
             let state = AppState {
                 inner: Arc::new(AppStateInner {
@@ -120,6 +124,9 @@ mod test_util {
                     dk,
                     ek,
                     pool,
+                    oauth_client: OAuthClient {
+                        github: GithubClient::new(oauth_github_client, github_scopes),
+                    },
                 }),
             };
             Ok((tdb, state))
@@ -131,7 +138,7 @@ mod test_util {
             Some(url) => url.to_string(),
             None => "postgres://postgres:postgres@localhost:5432".to_string(),
         };
-        let tdb = TestPg::new(url, std::path::Path::new("../migrations"));
+        let tdb = TestPg::new(url, std::path::Path::new("./migrations"));
         let pool = tdb.get_pool().await;
 
         // run prepared sql to insert test data

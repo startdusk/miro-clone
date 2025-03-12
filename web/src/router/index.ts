@@ -17,6 +17,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../pages/admin/ProjectBoard.vue')
     },
     {
+        path: '/auth',
+        name: 'auth',
+        component: () => import('../pages/auth/Auth.vue')
+    },
+    {
         path: '/learn-yjs',
         name: 'learn-yjs',
         component: () => import('../pages/admin/LearnYjs.vue')

@@ -1,8 +1,9 @@
+use crate::User;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct User {
+pub struct Account {
     pub id: i64,
     pub username: String,
     pub email: String,
@@ -13,7 +14,7 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
 }
 
-impl User {
+impl Account {
     pub fn new(
         id: i64,
         username: impl Into<String>,
@@ -29,6 +30,20 @@ impl User {
             password_hash: None,
             created_at: now,
             updated_at: now,
+        }
+    }
+}
+
+impl From<User> for Account {
+    fn from(user: User) -> Self {
+        Self {
+            id: user.id,
+            username: user.name,
+            email: user.email,
+            github_id: user.github_id,
+            password_hash: user.password,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
         }
     }
 }

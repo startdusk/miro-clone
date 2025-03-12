@@ -1,10 +1,20 @@
 <script lang="ts" setup>
 import googleSvg from '../../assets/img/google.svg'
 import githubSvg from '../../assets/img/github.svg'
+import { onMounted } from 'vue'
+import { hasLogined } from '../../hepler/auth'
+import { loginWithGithub } from '../../service/auth'
 
-const loginWithGithub = async () => {
-    
+const handleLoginWithGithub = async () => {
+    await loginWithGithub()
+    location.href = '/auth'
 }
+
+onMounted(() => {
+    if (hasLogined()) {
+        window.location.href = '/projects'
+    }
+})
 </script>
 
 <template>
@@ -19,7 +29,7 @@ const loginWithGithub = async () => {
 
                 <button 
                     class="mt-1 flex w-full shadow-md justify-center flex-row px-4 gap-4 py-2 rounded bg-slate-200"
-                    @click="loginWithGithub"
+                    @click="handleLoginWithGithub"
                     >
                     <img :src="githubSvg" width="20" alt="">
                     <span class="text-xs font-medium">Login with Github</span>

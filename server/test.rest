@@ -5,3 +5,19 @@
 ### get github oauth authorize url
 GET {{baseUrl}}/auth/github/authorize
 
+
+# 客户端请求 /auth/github/authorize
+# 服务器响应 302 重定向到 github 授权页面
+
+### github 授权页面
+GET https://github.com/login/oauth/authorize?client_id=Iv1.7f6f8a9f4b7e8d4e&redirect_uri=http://localhost:18888/auth/github/callback&scope=user:email
+
+
+# 客户端请求 github 授权页面
+# 用户登录并授权
+# 服务器响应 302 重定向到 http://localhost:18888/auth/github/callback (你在github上注册的回调地址)
+# 然后你就获取到了github的授权信息
+
+# 然后基于这些信息，你创建用户，并生成 token，重定向到客户端的页面，并带上 token
+# 客户端保存 token，并使用 token 访问服务器
+

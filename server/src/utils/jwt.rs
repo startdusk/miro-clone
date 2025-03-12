@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use crate::dto::User;
+use crate::dto::Account;
 use jwt_simple::prelude::*;
 
 const JWT_DURATION: u64 = 60 * 60 * 24 * 7;
@@ -17,7 +17,7 @@ impl EncodingKey {
         Ok(Self(Ed25519KeyPair::from_pem(pem)?))
     }
 
-    pub fn sign(&self, user: impl Into<User>) -> Result<String, jwt_simple::Error> {
+    pub fn sign(&self, user: impl Into<Account>) -> Result<String, jwt_simple::Error> {
         let claims = Claims::with_custom_claims(user.into(), Duration::from_secs(JWT_DURATION));
         let claims = claims.with_issuer(JWT_ISS).with_audience(JWT_AUD);
         self.0.sign(claims)
@@ -29,13 +29,13 @@ impl DecodingKey {
         Ok(Self(Ed25519PublicKey::from_pem(pem)?))
     }
 
-    pub fn verify(&self, token: &str) -> Result<User, jwt_simple::Error> {
+    pub fn verify(&self, token: &str) -> Result<Account, jwt_simple::Error> {
         let opts = VerificationOptions {
             allowed_issuers: Some(HashSet::from_strings(&[JWT_ISS])),
             allowed_audiences: Some(HashSet::from_strings(&[JWT_AUD])),
             ..Default::default()
         };
-        let claims = self.0.verify_token::<User>(token, Some(opts))?;
+        let claims = self.0.verify_token::<Account>(token, Some(opts))?;
         Ok(claims.custom)
     }
 }
@@ -50,7 +50,7 @@ mod tests {
         let decoding_pem = include_str!("../../fixtures/decoding.pem");
         let ek = EncodingKey::load(encoding_pem)?;
         let dk = DecodingKey::load(decoding_pem)?;
-        let user = User::new(1, "startdusk", "startdusk@acme.org", None);
+        let user = Account::new(1, "startdusk", "startdusk@acme.org", None);
 
         let token = ek.sign(user.clone())?;
         let decode_user = dk.verify(&token)?;

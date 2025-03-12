@@ -65,10 +65,11 @@ pub struct AuthUser {
 
 impl From<GithubUser> for AuthUser {
     fn from(user: GithubUser) -> Self {
+        let user_id = user.id.to_string();
         Self {
-            account_id: user.id.to_string(),
+            account_id: user_id.clone(),
             provider: OAuthApp::Github,
-            username: user.name.unwrap_or("<unknow>".to_string()),
+            username: user.name.unwrap_or(user_id),
             avatar: Some(user.avatar_url),
         }
     }

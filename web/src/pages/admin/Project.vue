@@ -1,7 +1,25 @@
 <script setup lang="ts">
 
+import { ref } from 'vue';
 import avatarImg from '../../assets/img/avatar.webp'
 import logoImg from '../../assets/img/logo.png'
+import { getUserData } from '../../hepler/auth';
+
+import UserMenu from './components/project/UserMenu.vue';
+import { loggout } from '../../service/auth';
+
+const user = getUserData();
+
+const showMenu = ref(false);
+
+const toggleMenu = () => {
+  showMenu.value = !showMenu.value;
+}
+
+const handleClickLogout = async () => {
+  console.log('logout');
+  loggout();
+}
 
 </script>
 <template>
@@ -10,6 +28,10 @@ import logoImg from '../../assets/img/logo.png'
       <div class="bg-white h-screen w-[250px]">
         <div class="flex justify-center py-4">
           <img :src="logoImg" width="150" alt="logo" />
+          <UserMenu
+            @logout="handleClickLogout"
+            :showMenu="showMenu"
+            :user="user" />
         </div>
         <ul class="flex flex-col px-2 gap-2">
           <li class="flex flex-row px-2 py-2 hover:bg-slate-200 rounded-md gap-2 cursor-pointer">
@@ -19,7 +41,9 @@ import logoImg from '../../assets/img/logo.png'
             <span>Projects</span>
           </li>
 
-          <li class="flex flex-row px-2 py-2 hover:bg-slate-200 rounded-md gap-2 cursor-pointer">
+          <li 
+            @click="handleClickLogout"
+            class="flex flex-row px-2 py-2 hover:bg-slate-200 rounded-md gap-2 cursor-pointer">
             <span class="icon pt-1">
               <LogoutIcon />
             </span>
@@ -30,7 +54,7 @@ import logoImg from '../../assets/img/logo.png'
       </div>
 
       <div class="bg-slate-200 w-screen">
-        <div class="flex justify-end px-4 py-2">
+        <div @click="toggleMenu" class="flex justify-end px-4 py-2">
           <img :src="avatarImg" width="30" class="rounded-full border-2 border-white cursor-pointer hover:border-blue-500" alt="" />
         </div>
         <div class="flex px-4">
