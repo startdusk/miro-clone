@@ -1,12 +1,14 @@
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import avatarImg from '../../assets/img/avatar.webp'
 import logoImg from '../../assets/img/logo.png'
 import { getUserData } from '../../hepler/auth';
 
 import UserMenu from './components/project/UserMenu.vue';
+import ProjectModal from './components/project/ProjectModal.vue';
 import { loggout } from '../../service/auth';
+import { showError } from '../../hepler/toastNotification';
 
 const user = getUserData();
 
@@ -21,9 +23,39 @@ const handleClickLogout = async () => {
   loggout();
 }
 
+
+function showUserMenu() {
+    showMenu.value = !showMenu.value;
+}
+
+const showModal = ref(false);
+
+function showProjectModal() {
+  console.log('showProjectModal');
+    showModal.value = true;
+}
+
+function closeModal() {
+    showModal.value = false;
+}
+
+function getProjects() {
+    // fetchProjects();
+}
+
+onMounted(() => {
+  showError('test');
+})
+
 </script>
 <template>
   <div class="bg-slate-100">
+    <ProjectModal
+      @closeModal="closeModal"
+      @get-projects="getProjects"
+      :showModal="showModal"
+    />
+
     <div class="flex">
       <div class="bg-white h-screen w-[250px]">
         <div class="flex justify-center py-4">
@@ -62,50 +94,24 @@ const handleClickLogout = async () => {
         </div>
         <!-- list of created project board -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
-          <div class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100">
-            <div class="px-6 text-indigo-700">
-              <div class="flex justify-center">
-                <PlusIcon />
-              </div>
-              <div class="flex justify-center">
-                <p>New Board</p>
-              </div>
+          <div
+              @click="showProjectModal"
+              class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100"
+            >
+                <div class="px-6 text-indigo-700">
+                    <div class="flex justify-center">
+                        <PlusIcon />
+                    </div>
+                    <div class="flex justify-center d">
+                        <span>New Project</span>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100">
-            <div class="px-6 text-indigo-700">
-              <div class="flex justify-center">
-                <PlusIcon />
-              </div>
-              <div class="flex justify-center">
-                <p>New Board</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100">
-            <div class="px-6 text-indigo-700">
-              <div class="flex justify-center">
-                <PlusIcon />
-              </div>
-              <div class="flex justify-center">
-                <p>New Board</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100">
-            <div class="px-6 text-indigo-700">
-              <div class="flex justify-center">
-                <PlusIcon />
-              </div>
-              <div class="flex justify-center">
-                <p>New Board</p>
-              </div>
-            </div>
-          </div>
-
+                    <!-- <ProjectList
+                        :projects="serverData?.data"
+                        @update-project="updateProject"
+                    /> -->
         </div>
       </div>
     </div>

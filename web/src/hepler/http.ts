@@ -1,3 +1,4 @@
+import camelcaseKeys from 'camelcase-keys';
 import { getUserToken, redirectLogin } from "./auth"
 
 
@@ -27,7 +28,7 @@ export function makeHttpReq<TInput, IResponse>(endpoint: string, verb: HttpVerbT
   return new Promise(async (resolve, reject) => {
     try {
       const raceRes = Promise.race([
-        fetch(`http://localhost:18888/${endpoint}`, {
+        fetch(`http://localhost:18888/api/${endpoint}`, {
           method: verb,
           headers: {
             'Content-Type': 'application/json',
@@ -42,7 +43,8 @@ export function makeHttpReq<TInput, IResponse>(endpoint: string, verb: HttpVerbT
         reject(new Error('Request failed'))
         return
       }
-      const resData = await resJson.json() as IHttpResposne<IResponse>
+      const jsonData = await resJson.json()
+      const resData = camelcaseKeys(jsonData) as IHttpResposne<IResponse>
       if (resData.success) {
         resolve(resData.data)
       } else {

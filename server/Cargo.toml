@@ -29,6 +29,9 @@ jwt-simple = { version = "0.12.9", default-features = false, features = ["pure-r
 oauth2 = { version = "4.4.2" }
 url = "2.5.4"
 reqwest = { version = "0.12.12", features = ["json"] }
+tower = "0.5.1"
+axum-extra = { version = "0.10.0", features = ["typed-header"] }
+# axum-extra = { version = "0.9.4", features = ["typed-header"] }
 
 [dev-dependencies]
 http-body-util = { version = "0.1.1" }

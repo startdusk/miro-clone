@@ -13,6 +13,7 @@ pub struct AuthorizeUrlResponse {
 #[derive(Debug, Deserialize, Clone)]
 pub struct OAuthCallbackParams {
     pub code: String,
+    #[allow(unused)]
     pub state: String,
 }
 
@@ -23,6 +24,7 @@ impl OAuthCallbackParams {
     }
 
     /// Convert the state to a `CsrfToken`
+    #[allow(unused)]
     pub fn csrf_token(&self) -> CsrfToken {
         CsrfToken::new(self.state.clone())
     }

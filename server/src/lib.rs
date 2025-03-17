@@ -7,9 +7,15 @@ mod models;
 mod oauth;
 mod utils;
 
-use axum::{http::Method, routing::get};
+use axum::{
+    http::Method,
+    middleware::from_fn_with_state,
+    routing::{get, post, put},
+};
 
 use anyhow::Context;
+use dto::Account;
+use middlewares::{set_layer, verify_token, TokenVerify};
 use oauth::{GithubClient, OAuthClient};
 use sqlx::PgPool;
 use tower_http::cors::{self, CorsLayer};
@@ -19,7 +25,7 @@ use std::{fmt, mem, ops::Deref, sync::Arc};
 use axum::Router;
 pub use config::AppConfig;
 use error::AppError;
-pub use models::*;
+use models::*;
 
 use handlers::*;
 use utils::{DecodingKey, EncodingKey};
@@ -51,7 +57,10 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
         .allow_headers(cors::Any)
         .allow_origin(cors::Any);
 
-    let api = Router::new();
+    let api = Router::new()
+        .route("/projects", put(create_project).get(get_my_projects))
+        .route("/projects/{project_id}", post(update_project))
+        .layer(from_fn_with_state(state.clone(), verify_token::<AppState>));
 
     let app = Router::new()
         .route("/", get(index_handler))
@@ -60,7 +69,7 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
         .nest("/api", api)
         .layer(cors)
         .with_state(state);
-    Ok(app)
+    Ok(set_layer(app))
 }
 
 impl Deref for AppState {
@@ -68,6 +77,14 @@ impl Deref for AppState {
 
     fn deref(&self) -> &Self::Target {
         &self.inner
+    }
+}
+
+impl TokenVerify for AppState {
+    type Error = AppError;
+
+    fn verify(&self, token: &str) -> Result<Account, Self::Error> {
+        Ok(self.dk.verify(token)?)
     }
 }
 

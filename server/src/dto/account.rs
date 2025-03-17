@@ -14,6 +14,7 @@ pub struct Account {
     pub updated_at: DateTime<Utc>,
 }
 
+#[cfg(test)]
 impl Account {
     pub fn new(
         id: i64,
