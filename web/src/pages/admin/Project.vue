@@ -7,8 +7,10 @@ import { getUserData } from '../../hepler/auth';
 
 import UserMenu from './components/project/UserMenu.vue';
 import ProjectModal from './components/project/ProjectModal.vue';
+import ProjectList from './components/project/ProjectList.vue';
 import { loggout } from '../../service/auth';
-import { showError } from '../../hepler/toastNotification';
+import { useGetProjects } from '../../service/project';
+import type { IProject } from '../../types';
 
 const user = getUserData();
 
@@ -39,12 +41,20 @@ function closeModal() {
     showModal.value = false;
 }
 
-function getProjects() {
-    // fetchProjects();
+const myProjects = ref<IProject[]>([]);
+
+const {loading: getProjectsLoading, getProjects} = useGetProjects();
+
+async function getMyProjects() {
+  const resp = await getProjects()
+  myProjects.value = resp?.projects || [];
 }
 
-onMounted(() => {
-  showError('test');
+async function updateProject() {
+}
+
+onMounted(async () => {
+  await getMyProjects();
 })
 
 </script>
@@ -52,7 +62,7 @@ onMounted(() => {
   <div class="bg-slate-100">
     <ProjectModal
       @closeModal="closeModal"
-      @get-projects="getProjects"
+      @get-projects="getMyProjects"
       :showModal="showModal"
     />
 
@@ -108,10 +118,10 @@ onMounted(() => {
                 </div>
             </div>
 
-                    <!-- <ProjectList
-                        :projects="serverData?.data"
-                        @update-project="updateProject"
-                    /> -->
+              <ProjectList
+                  :projects="myProjects"
+                  @update-project="updateProject"
+              />
         </div>
       </div>
     </div>

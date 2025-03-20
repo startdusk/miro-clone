@@ -4,7 +4,7 @@ defineProps<{
     show: boolean;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
     (e: "closeModal"): void;
 }>();
 </script>

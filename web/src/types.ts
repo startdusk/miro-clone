@@ -12,3 +12,10 @@ export interface IReplayDrawing {
   type: "start" | "drawing";
   strokeStyle: string;
 }
+
+export interface IProject {
+  id: number,
+  name: string,
+  projectCode: string,
+  projectLink: string,
+}

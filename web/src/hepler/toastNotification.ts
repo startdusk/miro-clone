@@ -5,16 +5,18 @@ const toast = useToast()
 
 export function showError(message: string) {
   toast.error(message, {
-    position: 'top',
+    position: 'bottom-right',
     duration: 4000,
-    dismissible: true
+    dismissible: true,
+    pauseOnHover: true,
   })
 }
 
 export function successMsg(message: string) {
   toast.success(message, {
-    position: 'top',
+    position: 'bottom-right',
     duration: 4000,
-    dismissible: true
+    dismissible: true,
+    pauseOnHover: true,
   })
 }

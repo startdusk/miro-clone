@@ -44,7 +44,8 @@ export function makeHttpReq<TInput, IResponse>(endpoint: string, verb: HttpVerbT
         return
       }
       const jsonData = await resJson.json()
-      const resData = camelcaseKeys(jsonData) as IHttpResposne<IResponse>
+      const resData = camelcaseKeys(jsonData, {deep: true}) as IHttpResposne<IResponse>
+      console.log(resData)
       if (resData.success) {
         resolve(resData.data)
       } else {

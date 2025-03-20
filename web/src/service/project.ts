@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { makeHttpReq } from "../hepler/http";
 import { showError } from "../hepler/toastNotification";
+import type { IProject } from "../types";
 
 export interface ICreateOrUpdateProject {
   id: number | null
@@ -8,12 +9,7 @@ export interface ICreateOrUpdateProject {
   userId: number | null
 }
 
-export interface IProjectResponse {
-  id: number
-  name: string
-  projectCode: string
-  projectLink: string
-}
+export interface IProjectResponse extends IProject {}
 
 export function useCreateProject() {
   const loading = ref(false) 
@@ -73,12 +69,16 @@ export function useUpdateProject() {
   }
 }
 
+export interface IGetProjects {
+  projects: IProject[]
+}
+
 export function useGetProjects() {
   const loading = ref(false)
   const getProjects = async () => {
     loading.value = true
     try {
-      const resp = await makeHttpReq<null, IProjectResponse[]>(
+      const resp = await makeHttpReq<null, IGetProjects>(
         `projects`,
         'GET',
       )
