@@ -4,11 +4,13 @@ import BaseModal from '../../../../components/base/BaseModal.vue';
 import Error from '../../../../components/base/Error.vue';
 import { projectStore } from '../../../../store/projectStore';
 import BaseInput from '../../../../components/base/BaseInput.vue';
-import { useCreateProject } from '../../../../service/project';
+import { useCreateProject, useUpdateProject } from '../../../../service/project';
 import { required } from "@vuelidate/validators";
+import { ref } from 'vue';
 
 defineProps<{
     showModal: boolean;
+    title: string;
 }>();
 const emit = defineEmits<{
     (e: "closeModal"): void;
@@ -18,8 +20,10 @@ const emit = defineEmits<{
 const rules = {
     name: { required }, // Matches state.firstName
 };
+let loading = ref(false);
 
-const { createProject, loading } = useCreateProject()
+const { createProject, loading: createProjectLoading } = useCreateProject()
+const { updateProject, loading: updateProjectLoading } = useUpdateProject()
 
 const v$ = useVuelidate(rules, projectStore.input);
 const validate = async () => {
@@ -28,10 +32,17 @@ const validate = async () => {
     return false;
   }
   // http request
-  await createProject(projectStore.input.name)
+  if (projectStore.editing) {
+    loading = updateProjectLoading;
+    await updateProject(projectStore.input.id!, projectStore.input.name)
+  } else {
+    loading = createProjectLoading;
+    await createProject(projectStore.input.name)
+  }
   await emit('getProjects')
 
   v$.value.$reset();
+  closeModal();
 };
 
 const closeModal = () => {
@@ -45,7 +56,7 @@ const closeModal = () => {
   <div>
     <BaseModal :show="showModal">
       <template #title>
-        <h2 class="text-lg font-semibold">Create Project</h2>
+        <h2 class="text-lg font-semibold">{{ title }}</h2>
       </template>
       <template #body>
         <div class="flex flex-col">

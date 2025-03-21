@@ -11,12 +11,13 @@ import ProjectList from './components/project/ProjectList.vue';
 import { loggout } from '../../service/auth';
 import { useGetProjects } from '../../service/project';
 import type { IProject } from '../../types';
+import { projectStore } from '../../store/projectStore';
 
 const user = getUserData();
 
 const showMenu = ref(false);
 
-const toggleMenu = () => {
+const showUserMenu = () => {
   showMenu.value = !showMenu.value;
 }
 
@@ -25,19 +26,27 @@ const handleClickLogout = async () => {
   loggout();
 }
 
-
-function showUserMenu() {
-    showMenu.value = !showMenu.value;
-}
-
 const showModal = ref(false);
+type ModalType = 'New Project' | 'Edit Project';
+const title = ref<ModalType>('New Project');
 
-function showProjectModal() {
-  console.log('showProjectModal');
-    showModal.value = true;
+
+
+const showProjectModal = () => {
+  if (projectStore.editing) {
+    title.value = 'Edit Project'
+  } else {
+    title.value = 'New Project'
+  }
+  showModal.value = true;
+} 
+
+const handleNewProject = () => {
+  projectStore.editing = false;
+  showProjectModal();
 }
 
-function closeModal() {
+const closeModal = () => {
     showModal.value = false;
 }
 
@@ -50,7 +59,12 @@ async function getMyProjects() {
   myProjects.value = resp?.projects || [];
 }
 
-async function updateProject() {
+const updateProject = (project: IProject) => {
+  projectStore.editing = true
+  projectStore.input.id = project.id
+  projectStore.input.name = project.name
+  projectStore.input.userId = project.userId
+  showProjectModal()
 }
 
 onMounted(async () => {
@@ -64,6 +78,7 @@ onMounted(async () => {
       @closeModal="closeModal"
       @get-projects="getMyProjects"
       :showModal="showModal"
+      :title="title"
     />
 
     <div class="flex">
@@ -96,7 +111,7 @@ onMounted(async () => {
       </div>
 
       <div class="bg-slate-200 w-screen">
-        <div @click="toggleMenu" class="flex justify-end px-4 py-2">
+        <div @click="showUserMenu" class="flex justify-end px-4 py-2">
           <img :src="avatarImg" width="30" class="rounded-full border-2 border-white cursor-pointer hover:border-blue-500" alt="" />
         </div>
         <div class="flex px-4">
@@ -105,7 +120,7 @@ onMounted(async () => {
         <!-- list of created project board -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4">
           <div
-              @click="showProjectModal"
+              @click="handleNewProject"
               class="flex justify-center bg-white items-center min-h-60 shadow-md p-4 rounded-md cursor-pointer hover:bg-slate-100"
             >
                 <div class="px-6 text-indigo-700">

@@ -2,6 +2,7 @@ use axum::{
     extract::{Path, State},
     Extension, Json,
 };
+use nanoid::nanoid;
 
 use crate::{
     dto::{
@@ -23,7 +24,7 @@ pub(crate) async fn create_project(
     let new_project = CreateProject {
         user_id: account.id,
         name: params.name,
-        project_code: "project_code".to_string(),
+        project_code: nanoid!(),
         project_link: "project_link".to_string(),
     };
 

@@ -16,6 +16,7 @@ export interface IReplayDrawing {
 export interface IProject {
   id: number,
   name: string,
+  userId: number,
   projectCode: string,
   projectLink: string,
 }

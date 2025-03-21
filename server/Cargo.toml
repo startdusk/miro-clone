@@ -31,6 +31,7 @@ url = "2.5.4"
 reqwest = { version = "0.12.12", features = ["json"] }
 tower = "0.5.1"
 axum-extra = { version = "0.10.0", features = ["typed-header"] }
+nanoid = "0.4.0"
 # axum-extra = { version = "0.9.4", features = ["typed-header"] }
 
 [dev-dependencies]
