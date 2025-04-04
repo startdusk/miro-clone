@@ -14,10 +14,13 @@ use axum::{
 };
 
 use anyhow::Context;
+use dashmap::DashMap;
 use dto::Account;
 use middlewares::{set_layer, verify_token, TokenVerify};
 use oauth::{GithubClient, OAuthClient};
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
+use tokio::sync::broadcast;
 use tower_http::cors::{self, CorsLayer};
 
 use std::{fmt, mem, ops::Deref, sync::Arc};
@@ -30,6 +33,18 @@ use models::*;
 use handlers::*;
 use utils::{DecodingKey, EncodingKey};
 
+pub type ProjectCode = String;
+pub type AccountId = u64;
+
+pub type UserMap = Arc<DashMap<AccountId, broadcast::Sender<Arc<AppEvent>>>>;
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "event")]
+pub enum AppEvent {
+    ProjectBoardEvent(ProjectCode),
+    UserTyipingEvent(AccountId),
+}
+
 #[derive(Clone)]
 pub struct AppState {
     inner: Arc<AppStateInner>,
@@ -41,7 +56,7 @@ pub struct AppStateInner {
     pub(crate) ek: EncodingKey,
     pub(crate) dk: DecodingKey,
     pub(crate) pool: PgPool,
-
+    pub(crate) users: UserMap,
     pub(crate) oauth_client: OAuthClient,
 }
 
@@ -60,10 +75,25 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
     let api = Router::new()
         .route("/projects", put(create_project).get(get_my_projects))
         .route("/projects/{project_id}", post(update_project))
+        .route("/projects/detail", get(get_project_detail))
+        .nest(
+            "/projects/{project_id}",
+            Router::new()
+                .route("/project_boards", get(get_project_board_data))
+                .route("/joinees", post(add_joinees))
+                .route("/sticky_notes", post(create_or_update_sticky_note))
+                .route(
+                    "/mini_text_editors",
+                    post(create_or_update_mini_text_editor),
+                )
+                .route("/drawings", post(create_or_update_drawing))
+                .route("/text_captions", post(create_or_update_text_caption)),
+        )
         .layer(from_fn_with_state(state.clone(), verify_token::<AppState>));
 
     let app = Router::new()
         .route("/", get(index_handler))
+        .route("/events", get(sse_handler))
         .route("/auth/{app_name}/authorize", get(oauth_authorize_handler))
         .route("/auth/{app_name}/callback", get(oauth_callback_handler))
         .nest("/api", api)
@@ -106,6 +136,7 @@ impl AppState {
                 oauth_client: OAuthClient {
                     github: GithubClient::new(oauth_github_client, github_scopes),
                 },
+                users: Arc::new(DashMap::new()),
             }),
         })
     }
@@ -144,6 +175,7 @@ pub mod test_util {
                     oauth_client: OAuthClient {
                         github: GithubClient::new(oauth_github_client, github_scopes),
                     },
+                    users: Arc::new(DashMap::new()),
                 }),
             };
             Ok((tdb, state))

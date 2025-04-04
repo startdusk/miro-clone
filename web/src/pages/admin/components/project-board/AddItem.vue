@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import cursorImg from "../../../../assets/img/cursor.png"
+import penImg from "../../../../assets/img/pen.png"
 import textImg from "../../../../assets/img/text.png"
 const emit = defineEmits<{
   (e: "createStickyNote"): void;
@@ -11,11 +11,11 @@ const emit = defineEmits<{
 </script>
 <template>
   <ul
-    @click="emit('createTextCaption')"
     class="flex flex-col px-2 bg-white mt-20 mb-2 gap-2 p-2 rounded-md shadow-md"
   >
     <!-- 文字 -->
     <li
+      @click="emit('createTextCaption')"
       class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer"
     >
       <span class="icon pt-1">
@@ -23,13 +23,13 @@ const emit = defineEmits<{
       </span>
     </li>
     
-    <!-- 箭头 -->
+    <!-- 笔 -->
     <li
       @click="emit('initDrawing')"
       class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer"
     >
       <span class="icon pt-1">
-        <img :src="cursorImg" alt="" />
+        <img :src="penImg" alt="" />
       </span>
     </li>
 

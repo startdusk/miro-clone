@@ -48,3 +48,17 @@ impl From<Vec<Project>> for GetMyProjectsResponse {
         }
     }
 }
+
+#[derive(Debug, Serialize, Clone)]
+pub struct GetProjectDetailResponse(ProjectDto);
+
+impl GetProjectDetailResponse {
+    pub fn new(project: Project) -> Self {
+        Self(project.into())
+    }
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct GetProjectDetailQuery {
+    pub project_code: String,
+}

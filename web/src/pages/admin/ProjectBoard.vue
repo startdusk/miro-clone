@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 
 import UndoRedo from "./components/project-board/UndoRedo.vue";
 import AddItem from "./components/project-board/AddItem.vue";
@@ -12,6 +12,7 @@ import StickyNote from "./components/project-board/StickyNote.vue";
 import MiniTextEditor from "./components/project-board/MiniTextEditor.vue";
 import LoadingIndicator from "../../components/base/LoadingIndicator.vue";
 import TextCaption from "./components/project-board/TextCaption.vue";
+import TopNavBar from "./components/project-board/TopNavBar.vue";
 
 import { useDragStickyNote } from "../../actions/project-board/sticky-note/stickyNote";
 import { useDragTextCaption } from "../../actions/project-board/text-caption/textCaption";
@@ -22,6 +23,11 @@ import { yjsDocStore } from "../../store/yjsDoc";
 import { useShareUserCursor } from "../../actions/project-board/cursor/userMouse";
 import { useCanvas } from "../../actions/project-board/canvas/canvas";
 import { initYjs } from "../../yjs/yjs";
+import { useRoute } from "vue-router";
+import { useGetProjectDetail } from "../../service/project";
+import type { IProjectDetail } from "../../types";
+
+const route = useRoute();
 
 const { initCanvas } = useCanvas();
 
@@ -34,6 +40,7 @@ const { createStickyNote, deleteStickyNote } = useDragStickyNote();
 const { createMiniTextEditor, deleteMiniTextEditor } = useDragMiniTextEditor();
 
 const { createTextCaption, deleteTextCaption } = useDragTextCaption();
+
 
 const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
   for (let i = 0; i < yjsDocStore.stickyNotes.length; i++) {
@@ -54,8 +61,19 @@ const changeMiniTextEditorBgColor = (
   }
 };
 
-onMounted(() => {
-  initYjs();
+let projectDetail = ref<IProjectDetail>();
+
+onMounted(async () => {
+  const projectCode = route.query.project_code?.toString(); 
+  if (!projectCode) {
+    return;
+  }
+    initYjs({
+      projectCode,
+    });
+
+  const {loading, getProjectDetail} = useGetProjectDetail(projectCode);
+  projectDetail.value = await getProjectDetail();
 });
 </script>
 <template>
@@ -82,28 +100,7 @@ onMounted(() => {
       </div>
 
       <div class="bg-slate-200 w-screen">
-        <div class="flex justify-between p-2 mt-1">
-          <div
-            class="flex items-center gap-2 bg-white p-2 px-3 py-2 rounded-md shadow-md"
-          >
-            <img :src="logoImg" width="50" alt="logo" />
-            <span class="text-slate-300">|</span> Build Smart AI
-          </div>
-          <div class="flex gap-2 bg-white p-2 px-2 py-2 rounded-md shadow-md">
-            <img
-              :src="avatarImg"
-              width="30"
-              class="rounded-full border-2 border-white cursor-pointer hover:border-blue-500"
-              alt=""
-            />
-            <button
-              class="flex items-center gap-2 bg-blue-500 py-1 px-2 rounded-md text-white"
-            >
-              <PersonPlusIcon />
-              <span class="text-sm">Share</span>
-            </button>
-          </div>
-        </div>
+        <TopNavBar :project-name="projectDetail?.name" />
 
         <canvas
           class="w-full h-screen"

@@ -11,7 +11,11 @@ import {
   initTextCaption,
 } from "./utils";
 
-export function initYjs() {
+interface IYjsOption {
+  projectCode: string;
+}
+
+export function initYjs(opt : IYjsOption) {
   yjsDocStore.loading = true;
   runFuncSequentially([
     initCursor,
@@ -26,7 +30,7 @@ export function initYjs() {
 
       // this allows you to instantly get the (cached) documents data
       const indexeddbProvider = new IndexeddbPersistence(
-        "miro-clone-1",
+        opt.projectCode,
         yjsDocStore.doc
       );
       indexeddbProvider.whenSynced.then(() => {

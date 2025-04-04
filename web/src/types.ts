@@ -20,3 +20,11 @@ export interface IProject {
   projectCode: string,
   projectLink: string,
 }
+
+export interface IProjectDetail {
+  id: number;
+  name: string;
+  image: string;
+  projectCode: string;
+  userId: number;
+}

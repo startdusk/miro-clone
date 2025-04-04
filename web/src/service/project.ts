@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { makeHttpReq } from "../hepler/http";
 import { showError } from "../hepler/toastNotification";
-import type { IProject } from "../types";
+import type { IProject, IProjectDetail } from "../types";
 
 export interface ICreateOrUpdateProject {
   id: number | null
@@ -26,7 +26,7 @@ export function useCreateProject() {
       )
       return resp
     } catch (error) {
-      console.log(error)
+      console.error(error)
       showError('create project failed')
     } finally {
       loading.value = false
@@ -78,7 +78,7 @@ export function useGetProjects() {
   const getProjects = async () => {
     loading.value = true
     try {
-      const resp = await makeHttpReq<null, IGetProjects>(
+      const resp = await makeHttpReq<{}, IGetProjects>(
         `projects`,
         'GET',
       )
@@ -93,5 +93,29 @@ export function useGetProjects() {
   return {
       loading,
       getProjects,
+  }
+}
+
+export function useGetProjectDetail(projectCode: string) {
+  const loading = ref(false)
+  const getProjectDetail = async () => {
+    loading.value = true
+    try {
+      const resp = await makeHttpReq<{}, IProjectDetail>(
+        `projects/detail?project_code=${projectCode}`,
+        'GET',
+      )
+      return resp
+    } catch (error) {
+      console.error(error)
+      showError('get project detail failed')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return {
+      loading,
+      getProjectDetail,
   }
 }

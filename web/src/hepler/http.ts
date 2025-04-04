@@ -1,4 +1,5 @@
 import camelcaseKeys from 'camelcase-keys';
+import decamelizeKeys from 'decamelize-keys';
 import { getUserToken, redirectLogin } from "./auth"
 
 
@@ -19,12 +20,29 @@ interface IHttpResposne<TResponse>  {
   data: TResponse,
 }
 
-export function makeHttpReq<TInput, IResponse>(endpoint: string, verb: HttpVerbType, body?: TInput): Promise<IResponse> {
+/**
+ * 构建http请求
+ * @param endpoint 请求的endpoint
+ * @param verb http请求方法
+ * @param body 请求的body
+ * @returns
+ * 
+ * @example
+ * const resp = await makeHttpReq<{name: string}, IProjectResponse>(
+ *   'projects',
+ *   'PUT',
+ *   {
+ *     name: projectName
+ *   }
+ * )
+ */
+export function makeHttpReq<TInput extends {}, IResponse>(endpoint: string, verb: HttpVerbType, body?: TInput): Promise<IResponse> {
   const token = getUserToken()
   if (!token) {
     redirectLogin()
     return Promise.reject(new Error('No token'))
   }
+  const postBody = body ? JSON.stringify(decamelizeKeys(body)) : undefined
   return new Promise(async (resolve, reject) => {
     try {
       const raceRes = Promise.race([
@@ -34,7 +52,7 @@ export function makeHttpReq<TInput, IResponse>(endpoint: string, verb: HttpVerbT
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: body ? JSON.stringify(body) : undefined
+          body: postBody ? postBody : undefined,
         }),
         httpTimeoutFunction('Request timed out')
       ]) 
@@ -45,7 +63,6 @@ export function makeHttpReq<TInput, IResponse>(endpoint: string, verb: HttpVerbT
       }
       const jsonData = await resJson.json()
       const resData = camelcaseKeys(jsonData, {deep: true}) as IHttpResposne<IResponse>
-      console.log(resData)
       if (resData.success) {
         resolve(resData.data)
       } else {

@@ -1,16 +1,19 @@
+use std::sync::Arc;
+
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     Extension, Json,
 };
 use nanoid::nanoid;
+use tracing::warn;
 
 use crate::{
     dto::{
-        CreateProjectParams, CreateProjectResponse, GetMyProjectsResponse, UpdateProjectParams,
-        UpdateProjectResponse,
+        CreateProjectParams, CreateProjectResponse, GetMyProjectsResponse, GetProjectDetailQuery,
+        GetProjectDetailResponse, UpdateProjectParams, UpdateProjectResponse,
     },
     error::AppError,
-    Account, AppState, CreateProject, UpdateProject,
+    Account, AppEvent, AppState, CreateProject, UpdateProject,
 };
 
 use super::{JsonUnifyResponse, UnifyResponse};
@@ -56,4 +59,48 @@ pub(crate) async fn get_my_projects(
 ) -> Result<JsonUnifyResponse<GetMyProjectsResponse>, AppError> {
     let projects = state.get_my_projects(account.id).await?;
     Ok(UnifyResponse::ok(Some(projects.into())))
+}
+
+/// 获取项目细节
+pub(crate) async fn get_project_detail(
+    State(state): State<AppState>,
+    Query(project): Query<GetProjectDetailQuery>,
+) -> Result<JsonUnifyResponse<GetProjectDetailResponse>, AppError> {
+    let project = state
+        .get_project_from_project_code(project.project_code.clone())
+        .await?;
+    let Some(project) = project else {
+        return Ok(UnifyResponse::ok(None));
+    };
+
+    // 找出这个project的所有用户的id，然后发送消息
+    if let Some(user_ids) = state
+        .get_user_ids_from_project_code(project.project_code.clone())
+        .await?
+    {
+        let event = Arc::new(AppEvent::ProjectBoardEvent(project.project_code.clone()));
+        for user_id in user_ids {
+            if let Some(tx) = state.users.get(&(user_id as u64)) {
+                if let Err(e) = tx.send(event.clone()) {
+                    warn!("Failed to send notification to user {}: {}", user_id, e);
+                }
+            }
+        }
+    }
+
+    // 知道谁在编辑，然后发送消息
+    if let Some(user_ids) = state.get_user_ids_from_joinees(project.id).await? {
+        for user_id in user_ids {
+            if let Some(tx) = state.users.get(&(user_id as u64)) {
+                let event = Arc::new(AppEvent::UserTyipingEvent(user_id as _));
+                if let Err(e) = tx.send(event.clone()) {
+                    warn!("Failed to send notification to user {}: {}", user_id, e);
+                }
+            }
+        }
+    }
+
+    Ok(UnifyResponse::ok(Some(GetProjectDetailResponse::new(
+        project,
+    ))))
 }

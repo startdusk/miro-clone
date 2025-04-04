@@ -17,9 +17,15 @@ dependencies:
   camelcase-keys:
     specifier: ^9.1.3
     version: 9.1.3
+  decamelize-keys:
+    specifier: ^2.0.1
+    version: 2.0.1
   jwt-decode:
     specifier: ^4.0.0
     version: 4.0.0
+  laravel-vue-pagination:
+    specifier: ^4.1.3
+    version: 4.1.3(typescript@5.6.3)
   pinia:
     specifier: ^2.3.0
     version: 2.3.0(typescript@5.6.3)(vue@3.5.13)
@@ -29,6 +35,9 @@ dependencies:
   vue:
     specifier: ^3.5.13
     version: 3.5.13(typescript@5.6.3)
+  vue-awesome-paginate:
+    specifier: ^1.2.0
+    version: 1.2.0(typescript@5.6.3)
   vue-router:
     specifier: ^4.5.0
     version: 4.5.0(vue@3.5.13)
@@ -1866,6 +1875,21 @@ packages:
       ms: 2.1.3
     dev: true
 
+  /decamelize-keys@2.0.1:
+    resolution: {integrity: sha512-nrNeSCtU2gV3Apcmn/EZ+aR20zKDuNDStV67jPiupokD3sOAFeMzslLMCFdKv1sPqzwoe5ZUhsSW9IAVgKSL/Q==}
+    engines: {node: '>=14.16'}
+    dependencies:
+      decamelize: 6.0.0
+      map-obj: 4.3.0
+      quick-lru: 6.1.2
+      type-fest: 3.13.1
+    dev: false
+
+  /decamelize@6.0.0:
+    resolution: {integrity: sha512-Fv96DCsdOgB6mdGl67MT5JaTNKRzrzill5OH5s8bjYJXVlcXyPYGyPsUkWyGV5p1TXI5esYIYMMeDJL0hEIwaA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dev: false
+
   /dedent@1.5.3:
     resolution: {integrity: sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==}
     peerDependencies:
@@ -2848,6 +2872,14 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
+  /laravel-vue-pagination@4.1.3(typescript@5.6.3):
+    resolution: {integrity: sha512-KHz3L19ovlcMfRREFgqip+2m+fnYwONHvK3kOkuglfHhI6SkRk5w90DVHfVzms00o3wyMqdS6xo49c2+kcW5gg==}
+    dependencies:
+      vue: 3.5.13(typescript@5.6.3)
+    transitivePeerDependencies:
+      - typescript
+    dev: false
+
   /level-codec@9.0.2:
     resolution: {integrity: sha512-UyIwNb1lJBChJnGfjmO0OR+ezh2iVu1Kas3nvBS/BzGnx79dv6g7unpKIDNPMhfdTEGoc7mC8uAu51XEtX+FHQ==}
     engines: {node: '>=6'}
@@ -3030,6 +3062,11 @@ packages:
     dependencies:
       tmpl: 1.0.5
     dev: true
+
+  /map-obj@4.3.0:
+    resolution: {integrity: sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==}
+    engines: {node: '>=8'}
+    dev: false
 
   /map-obj@5.0.0:
     resolution: {integrity: sha512-2L3MIgJynYrZ3TYMriLDLWocz15okFakV6J12HXvMXDHui2x/zgChzg1u9mFFGbbGWE+GsLpQByt4POb9Or+uA==}
@@ -3800,6 +3837,11 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /type-fest@3.13.1:
+    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
+    engines: {node: '>=14.16'}
+    dev: false
+
   /type-fest@4.37.0:
     resolution: {integrity: sha512-S/5/0kFftkq27FPNye0XM1e2NsnoD/3FS+pBmbjmmtLT6I+i344KoOf7pvXreaFsDamWeaJX55nczA1m5PsBDg==}
     engines: {node: '>=16'}
@@ -3886,6 +3928,14 @@ packages:
   /vscode-uri@3.0.8:
     resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
     dev: true
+
+  /vue-awesome-paginate@1.2.0(typescript@5.6.3):
+    resolution: {integrity: sha512-+eYXo666E2n8NhpEPIdJcQEoJBDLo7wMGv45D2+i/VDntz2o422jRNcMQ7VESMgAcKyReWMwb9m99esCjsO/hw==}
+    dependencies:
+      vue: 3.5.13(typescript@5.6.3)
+    transitivePeerDependencies:
+      - typescript
+    dev: false
 
   /vue-demi@0.13.11(vue@3.5.13):
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}

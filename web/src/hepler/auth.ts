@@ -24,14 +24,17 @@ export const storeUserToken = (token: string) => {
 }
 
 export const getUserToken = () => {
+    if (!hasLogined()) {
+        return null
+    }
     return localStorage.getItem(tokenKey)
 }
 
 export const getUserData = () => {
-    const token = localStorage.getItem(tokenKey)
-    if (!token) {
+    if (!hasLogined()) {
         return null
     }
+    const token = getUserToken()!
     const payload: AuthToken = jwtDecode(token)
     const user: User = {
         id: payload.id,
@@ -51,7 +54,11 @@ export const hasLogined = () => {
     }
     const payload: AuthToken = jwtDecode(token)
     const now = Math.floor(Date.now() / 1000)
-    return now < payload.exp
+    const result = now < payload.exp
+    if (!result) {
+        redirectLogin()
+    }
+    return result
 }
 
 export const redirectLogin = () => {
