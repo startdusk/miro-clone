@@ -23,7 +23,7 @@ import { initYjs } from "../../yjs/yjs";
 import { useRoute } from "vue-router";
 import { useGetProjectDetail } from "../../service/project";
 import type { IProjectDetail } from "../../types";
-import { useSaveProjectBoardData } from "../../service/projectBoard";
+import { useGetProjectBoardData, useSaveProjectBoardData } from "../../service/projectBoard";
 
 const route = useRoute();
 
@@ -60,6 +60,7 @@ const changeMiniTextEditorBgColor = (
 };
 
 const {saveProjectBoardData} = useSaveProjectBoardData()
+const { getProjectBoardData, projectBoardData } = useGetProjectBoardData()
 
 const projectCode = route.query.project_code?.toString(); 
 let handleSaveProjectBoardData = async () => {}
@@ -67,8 +68,34 @@ let handleSaveProjectBoardData = async () => {}
 const {getProjectDetail} = useGetProjectDetail();
 let projectDetail = ref<IProjectDetail>();
 
+const backToProjects = () => {
+  window.location.href = "/projects";
+}
+
+const initProjectBoardData = () => {
+  const drawingCondinates = projectBoardData.value?.drawing || [];
+  const arrayDrawing = yjsDocStore.yArrayDrawing.toArray();
+  yjsDocStore.yArrayDrawing.delete(0, arrayDrawing.length);
+  yjsDocStore.yArrayDrawing.insert(0, drawingCondinates);
+  const stickyNotes = projectBoardData.value?.stickyNote || [];
+  const arrayStickyNotes = yjsDocStore.yArrayStickyNote.toArray();
+  yjsDocStore.yArrayStickyNote.delete(0, arrayStickyNotes.length);
+  yjsDocStore.yArrayStickyNote.insert(0, stickyNotes);
+  const miniTextEditors = projectBoardData.value?.miniTextEditor || [];
+  const arrayMiniTextEditors = yjsDocStore.yArrayMiniTextEditor.toArray();
+  yjsDocStore.yArrayMiniTextEditor.delete(0, arrayMiniTextEditors.length);
+  yjsDocStore.yArrayMiniTextEditor.insert(0, miniTextEditors);
+  const textCaptions = projectBoardData.value?.textCaption || [];
+  const arrayTextCaptions = yjsDocStore.yArrayTextCaption.toArray();
+  yjsDocStore.yArrayTextCaption.delete(0, arrayTextCaptions.length);
+  yjsDocStore.yArrayTextCaption.insert(0, textCaptions);
+}
+
 onMounted(async () => {
+  yjsDocStore.loading = true;
   if (!projectCode) {
+    yjsDocStore.loading = false;
+    backToProjects();
     return;
   }
   
@@ -78,9 +105,18 @@ onMounted(async () => {
 
   const pd = await getProjectDetail(projectCode);
   if (!pd) {
+    yjsDocStore.loading = false;
+    backToProjects();
     return;
   }
   projectDetail.value = pd;
+
+  await getProjectBoardData(pd.id);
+  yjsDocStore.loading = false;
+
+  initProjectBoardData();
+
+
   handleSaveProjectBoardData = async () => {
     await saveProjectBoardData(pd?.id, {
       miniTextEditor: yjsDocStore.miniTextEditors,
