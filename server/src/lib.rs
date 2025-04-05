@@ -79,15 +79,11 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
         .nest(
             "/projects/{project_id}",
             Router::new()
-                .route("/project_boards", get(get_project_board_data))
-                .route("/joinees", post(add_joinees))
-                .route("/sticky_notes", post(create_or_update_sticky_note))
                 .route(
-                    "/mini_text_editors",
-                    post(create_or_update_mini_text_editor),
+                    "/project_board",
+                    get(get_project_board_data).post(create_or_update_project_board_data),
                 )
-                .route("/drawings", post(create_or_update_drawing))
-                .route("/text_captions", post(create_or_update_text_caption)),
+                .route("/joinees", post(add_joinees)),
         )
         .layer(from_fn_with_state(state.clone(), verify_token::<AppState>));
 

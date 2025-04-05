@@ -1,9 +1,6 @@
 import { defineStore } from "pinia";
 import * as Y from 'yjs';
-import type { IMiniTextEditor } from "../actions/project-board/editor/miniTextEditorType";
-import type { IStickyNote } from "../actions/project-board/sticky-note/stickyNoteType";
-import { type ICursor, type IReplayDrawing } from "../types";
-import type { ITextCaption } from "../actions/project-board/text-caption/textCaptionTypes";
+import { type ICursor, type IMiniTextEditor, type IReplayDrawing, type IStickyNote, type ITextCaption } from "../types";
 
 const useYjsDocStore = defineStore('yjsDoc', {
   state: () => ({

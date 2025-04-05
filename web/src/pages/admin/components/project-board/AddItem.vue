@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import penImg from "../../../../assets/img/pen.png"
 import textImg from "../../../../assets/img/text.png"
+import saveImg from "../../../../assets/img/save.png"
 const emit = defineEmits<{
   (e: "createStickyNote"): void;
   (e: "createMiniTextEditor"): void;
   (e: "createTextCaption"): void;
   (e: "initDrawing"): void;
+  (e: "saveBoardData"): void;
 }>();
 
 </script>
@@ -13,6 +15,15 @@ const emit = defineEmits<{
   <ul
     class="flex flex-col px-2 bg-white mt-20 mb-2 gap-2 p-2 rounded-md shadow-md"
   >
+    <!-- 保存 -->
+    <li
+      @click="emit('saveBoardData')"
+      class="flex flex-row rounded-md hover:bg-slate-100 px-2 py-2 cursor-pointer"
+    >
+      <span class="icon pt-1">
+        <img :src="saveImg" alt="" />
+      </span>
+    </li>
     <!-- 文字 -->
     <li
       @click="emit('createTextCaption')"

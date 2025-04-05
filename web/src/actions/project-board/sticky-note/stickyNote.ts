@@ -1,8 +1,9 @@
-import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyNoteHandlerClassName, createStickyNoteResizerClassName, type IStickyNote } from "./stickyNoteType";
+import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyNoteHandlerClassName, createStickyNoteResizerClassName } from "./stickyNoteType";
 import { stickyNoteStore } from "../../../store/stickyNote";
 import { yjsDocStore } from "../../../store/yjsDoc";
 
 import { debounce, getCursorPosition, moveCursorToPosition, runFuncSequentially } from "../../../hepler/utils";
+import type { IStickyNote } from "../../../types";
 
 export function useDragStickyNote() {
   const stickyNoteHasEventSet = new Set<number>()

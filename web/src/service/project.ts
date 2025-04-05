@@ -96,9 +96,9 @@ export function useGetProjects() {
   }
 }
 
-export function useGetProjectDetail(projectCode: string) {
+export function useGetProjectDetail() {
   const loading = ref(false)
-  const getProjectDetail = async () => {
+  const getProjectDetail = async (projectCode: string) => {
     loading.value = true
     try {
       const resp = await makeHttpReq<{}, IProjectDetail>(

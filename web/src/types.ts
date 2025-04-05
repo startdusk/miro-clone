@@ -28,3 +28,52 @@ export interface IProjectDetail {
   projectCode: string;
   userId: number;
 }
+
+export interface IStickyNote {
+  id: number,
+  body: string,
+  color: string,
+  dragPosition: {
+    x: number,
+    y: number
+  }
+  resizePosition: {
+    x: number,
+    y: number,
+  }
+}
+
+export interface IMiniTextEditor {
+  id: number,
+  body: string,
+  color: string,
+  dragPosition: {
+    x: number,
+    y: number
+  }
+  resizePosition: {
+    x: number,
+    y: number,
+  }
+}
+
+export interface ITextCaption {
+  id: number;
+  body: string;
+  color: string;
+  dragPosition: {
+    x: number;
+    y: number;
+  };
+  resizePosition: {
+    x: number;
+    y: number;
+  };
+}
+
+export interface IProjectBoardData {
+    miniTextEditor: IMiniTextEditor[] | null;
+    stickyNote: IStickyNote[] | null;
+    textCaption: ITextCaption[] | null;
+    drawing: IReplayDrawing[][] | null;
+}

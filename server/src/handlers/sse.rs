@@ -68,3 +68,4 @@ impl Drop for Guard {
         info!("User {} exit sse, left {} users", self.user_id, left);
     }
 }
+

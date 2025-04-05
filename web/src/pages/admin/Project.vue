@@ -54,7 +54,7 @@ const closeModal = () => {
 
 const myProjects = ref<IProject[]>([]);
 
-const {loading: getProjectsLoading, getProjects} = useGetProjects();
+const {getProjects} = useGetProjects();
 
 const paginationProject = ref<{data: IProject[]}>({data: []})
 

@@ -4,9 +4,7 @@ import { onMounted, ref } from "vue";
 import UndoRedo from "./components/project-board/UndoRedo.vue";
 import AddItem from "./components/project-board/AddItem.vue";
 import ColorPalette from "./components/project-board/ColorPalette.vue";
-import avatarImg from "../../assets/img/avatar.webp";
 import UserCursor from "./components/project-board/UserCursor.vue";
-import logoImg from "../../assets/img/logo.png";
 
 import StickyNote from "./components/project-board/StickyNote.vue";
 import MiniTextEditor from "./components/project-board/MiniTextEditor.vue";
@@ -18,7 +16,6 @@ import { useDragStickyNote } from "../../actions/project-board/sticky-note/stick
 import { useDragTextCaption } from "../../actions/project-board/text-caption/textCaption";
 
 import { useDragMiniTextEditor } from "../../actions/project-board/editor/miniTextEditor";
-import { type IStickyNote } from "../../actions/project-board/sticky-note/stickyNoteType";
 import { yjsDocStore } from "../../store/yjsDoc";
 import { useShareUserCursor } from "../../actions/project-board/cursor/userMouse";
 import { useCanvas } from "../../actions/project-board/canvas/canvas";
@@ -26,6 +23,7 @@ import { initYjs } from "../../yjs/yjs";
 import { useRoute } from "vue-router";
 import { useGetProjectDetail } from "../../service/project";
 import type { IProjectDetail } from "../../types";
+import { useSaveProjectBoardData } from "../../service/projectBoard";
 
 const route = useRoute();
 
@@ -61,19 +59,36 @@ const changeMiniTextEditorBgColor = (
   }
 };
 
+const {saveProjectBoardData} = useSaveProjectBoardData()
+
+const projectCode = route.query.project_code?.toString(); 
+let handleSaveProjectBoardData = async () => {}
+
+const {getProjectDetail} = useGetProjectDetail();
 let projectDetail = ref<IProjectDetail>();
 
 onMounted(async () => {
-  const projectCode = route.query.project_code?.toString(); 
   if (!projectCode) {
     return;
   }
-    initYjs({
-      projectCode,
-    });
+  
+  initYjs({
+    projectCode,
+  });
 
-  const {loading, getProjectDetail} = useGetProjectDetail(projectCode);
-  projectDetail.value = await getProjectDetail();
+  const pd = await getProjectDetail(projectCode);
+  if (!pd) {
+    return;
+  }
+  projectDetail.value = pd;
+  handleSaveProjectBoardData = async () => {
+    await saveProjectBoardData(pd?.id, {
+      miniTextEditor: yjsDocStore.miniTextEditors,
+      stickyNote: yjsDocStore.stickyNotes,
+      textCaption: yjsDocStore.textCaptions,
+      drawing: yjsDocStore.arrayDrawing,
+    })
+  }
 });
 </script>
 <template>
@@ -82,6 +97,7 @@ onMounted(async () => {
     <div class="flex">
       <div class="bg-slate-200 h-screen w-[50px]">
         <AddItem
+          @saveBoardData="handleSaveProjectBoardData"
           @createStickyNote="createStickyNote"
           @createMiniTextEditor="createMiniTextEditor"
           @createTextCaption="createTextCaption"

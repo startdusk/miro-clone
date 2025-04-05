@@ -2,7 +2,8 @@ import { textCaptionStore } from "../../../store/textCaption";
 import { yjsDocStore } from "../../../store/yjsDoc";
 
 import { debounce, getCursorPosition, moveCursorToPosition, runFuncSequentially } from "../../../hepler/utils";
-import { createTextCaptionBodyClassName, createTextCaptionClassName, createTextCaptionHandlerClassName, createTextCaptionResizerClassName, type ITextCaption } from "./textCaptionTypes";
+import { createTextCaptionBodyClassName, createTextCaptionClassName, createTextCaptionHandlerClassName, createTextCaptionResizerClassName } from "./textCaptionTypes";
+import type { ITextCaption } from "../../../types";
 
 /**
  * 拖拽文本框
