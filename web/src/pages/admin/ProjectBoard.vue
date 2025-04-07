@@ -33,11 +33,11 @@ const { trackMousePosition } = useShareUserCursor({
   user: { name: "benjamin" },
 });
 
-const { createStickyNote, deleteStickyNote } = useDragStickyNote();
+const { createStickyNote, deleteStickyNote, dragStickyNote, changeStickyNoteBodyContent } = useDragStickyNote();
 
-const { createMiniTextEditor, deleteMiniTextEditor } = useDragMiniTextEditor();
+const { createMiniTextEditor, deleteMiniTextEditor ,dragMiniTextEditor, changeMiniTextEditorBodyContent } = useDragMiniTextEditor();
 
-const { createTextCaption, deleteTextCaption } = useDragTextCaption();
+const { createTextCaption, deleteTextCaption, dragTextCaption, changeTextCaptionBodyContent } = useDragTextCaption();
 
 
 const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
@@ -60,7 +60,7 @@ const changeMiniTextEditorBgColor = (
 };
 
 const {saveProjectBoardData} = useSaveProjectBoardData()
-const { getProjectBoardData, projectBoardData } = useGetProjectBoardData()
+const { getProjectBoardData, projectBoardData, loading: loadingProjectBoardData } = useGetProjectBoardData()
 
 const projectCode = route.query.project_code?.toString(); 
 let handleSaveProjectBoardData = async () => {}
@@ -72,29 +72,67 @@ const backToProjects = () => {
   window.location.href = "/projects";
 }
 
-const initProjectBoardData = () => {
-  const drawingCondinates = projectBoardData.value?.drawing || [];
+const initProjectBoardData = async () => {
+  // reset drawing, stickyNote, textCaption and miniTextEditor array
+  const drawings = projectBoardData.value?.drawing || [];
   const arrayDrawing = yjsDocStore.yArrayDrawing.toArray();
   yjsDocStore.yArrayDrawing.delete(0, arrayDrawing.length);
-  yjsDocStore.yArrayDrawing.insert(0, drawingCondinates);
+  yjsDocStore.arrayDrawing = [...drawings]
+  yjsDocStore.yArrayDrawing.insert(0, drawings);
   const stickyNotes = projectBoardData.value?.stickyNote || [];
   const arrayStickyNotes = yjsDocStore.yArrayStickyNote.toArray();
   yjsDocStore.yArrayStickyNote.delete(0, arrayStickyNotes.length);
+  yjsDocStore.stickyNotes = [...stickyNotes];
   yjsDocStore.yArrayStickyNote.insert(0, stickyNotes);
   const miniTextEditors = projectBoardData.value?.miniTextEditor || [];
   const arrayMiniTextEditors = yjsDocStore.yArrayMiniTextEditor.toArray();
   yjsDocStore.yArrayMiniTextEditor.delete(0, arrayMiniTextEditors.length);
+  yjsDocStore.miniTextEditors = [...miniTextEditors];
   yjsDocStore.yArrayMiniTextEditor.insert(0, miniTextEditors);
   const textCaptions = projectBoardData.value?.textCaption || [];
   const arrayTextCaptions = yjsDocStore.yArrayTextCaption.toArray();
   yjsDocStore.yArrayTextCaption.delete(0, arrayTextCaptions.length);
+  yjsDocStore.textCaptions = [...textCaptions];
   yjsDocStore.yArrayTextCaption.insert(0, textCaptions);
+
+  // get drawing data
+  if (drawings.length > 0) {
+    const canvas = await initCanvas();
+    canvas.replayDrawing();
+  }
+  
+  // get stickyNote data
+  if (stickyNotes.length > 0) {
+    setTimeout(() => {
+      stickyNotes.forEach((stickyNote) => {
+        dragStickyNote(stickyNote.id);
+        changeStickyNoteBodyContent(stickyNote.id);
+      });
+    }, 1000);
+  }
+
+  // get miniTextEditor data
+  if (miniTextEditors.length > 0) {
+    setTimeout(() => {
+      miniTextEditors.forEach((miniTextEditor) => {
+        dragMiniTextEditor(miniTextEditor.id);
+        changeMiniTextEditorBodyContent(miniTextEditor.id);
+      });
+    }, 1000);
+  }
+  // get textCaption data
+  if (textCaptions.length > 0) {
+    setTimeout(() => {
+      textCaptions.forEach((textCaption) => {
+        dragTextCaption(textCaption.id);
+        changeTextCaptionBodyContent(textCaption.id);
+      });
+    }, 1000);
+  }
 }
 
 onMounted(async () => {
-  yjsDocStore.loading = true;
   if (!projectCode) {
-    yjsDocStore.loading = false;
     backToProjects();
     return;
   }
@@ -105,17 +143,14 @@ onMounted(async () => {
 
   const pd = await getProjectDetail(projectCode);
   if (!pd) {
-    yjsDocStore.loading = false;
     backToProjects();
     return;
   }
   projectDetail.value = pd;
 
   await getProjectBoardData(pd.id);
-  yjsDocStore.loading = false;
 
-  initProjectBoardData();
-
+  await initProjectBoardData();
 
   handleSaveProjectBoardData = async () => {
     await saveProjectBoardData(pd?.id, {
@@ -129,8 +164,8 @@ onMounted(async () => {
 </script>
 <template>
   <div class="bg-slate-100" @mousemove="trackMousePosition">
-    <LoadingIndicator :loading="yjsDocStore.loading" />
-    <div class="flex">
+    <LoadingIndicator :loading="loadingProjectBoardData" />
+    <div class="flex" v-show="loadingProjectBoardData ? false : true">
       <div class="bg-slate-200 h-screen w-[50px]">
         <AddItem
           @saveBoardData="handleSaveProjectBoardData"
@@ -152,7 +187,7 @@ onMounted(async () => {
       </div>
 
       <div class="bg-slate-200 w-screen">
-        <TopNavBar :project-name="projectDetail?.name" />
+        <TopNavBar :project-name="projectDetail?.name" :project-code="projectCode!" />
 
         <canvas
           class="w-full h-screen"

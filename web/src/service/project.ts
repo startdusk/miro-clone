@@ -12,10 +12,9 @@ export interface ICreateOrUpdateProject {
 export interface IProjectResponse extends IProject {}
 
 export function useCreateProject() {
-  const loading = ref(false) 
+  const loading = ref(true) 
 
   const createProject = async (projectName: string) => {
-    loading.value = true
     try {
       const resp = await makeHttpReq<{name: string}, IProjectResponse>(
         'projects',
@@ -41,10 +40,9 @@ export function useCreateProject() {
 }
 
 export function useUpdateProject() {
-  const loading = ref(false) 
+  const loading = ref(true) 
 
   const updateProject = async (projectId: number, projectName: string) => {
-    loading.value = true
     try {
       const resp = await makeHttpReq<{name: string}, IProjectResponse>(
         `projects/${projectId}`,
@@ -74,9 +72,8 @@ export interface IGetProjects {
 }
 
 export function useGetProjects() {
-  const loading = ref(false)
+  const loading = ref(true)
   const getProjects = async () => {
-    loading.value = true
     try {
       const resp = await makeHttpReq<{}, IGetProjects>(
         `projects`,
@@ -97,9 +94,8 @@ export function useGetProjects() {
 }
 
 export function useGetProjectDetail() {
-  const loading = ref(false)
+  const loading = ref(true)
   const getProjectDetail = async (projectCode: string) => {
-    loading.value = true
     try {
       const resp = await makeHttpReq<{}, IProjectDetail>(
         `projects/detail?project_code=${projectCode}`,

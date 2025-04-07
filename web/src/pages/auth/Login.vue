@@ -4,6 +4,9 @@ import githubSvg from '../../assets/img/github.svg'
 import { onMounted } from 'vue'
 import { hasLogined } from '../../hepler/auth'
 import { loginWithGithub } from '../../service/auth'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const handleLoginWithGithub = async () => {
     await loginWithGithub()
@@ -13,6 +16,15 @@ const handleLoginWithGithub = async () => {
 onMounted(() => {
     if (hasLogined()) {
         window.location.href = '/projects'
+    }
+    if (route.query.redirect_url) {
+        if (typeof route.query.redirect_url !== 'string') {
+            return
+        }
+        if (!route.query.redirect_url.includes('/add-joinees')) {
+            return
+        }
+        window.location.href = route.query.redirect_url.toString()
     }
 })
 </script>

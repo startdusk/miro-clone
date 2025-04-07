@@ -22,6 +22,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../pages/auth/Auth.vue')
     },
     {
+        path: '/add-joinees',
+        name: 'add-joinees',
+        component: () => import('../pages/admin/AddJoinee.vue')
+    },
+    {
         path: '/learn-yjs',
         name: 'learn-yjs',
         component: () => import('../pages/admin/LearnYjs.vue')

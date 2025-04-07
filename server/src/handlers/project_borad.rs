@@ -1,10 +1,10 @@
 use axum::{
-    extract::{Path, State},
+    extract::{Path, Query, State},
     Extension, Json,
 };
 
 use crate::{
-    dto::{CreateOrUpdateProjectBoardDataParams, GetProjectBoardDataResponse},
+    dto::{AddJoineesParams, CreateOrUpdateProjectBoardDataParams, GetProjectBoardDataResponse},
     error::AppError,
     Account, AppState,
 };
@@ -14,9 +14,11 @@ use super::{JsonUnifyResponse, UnifyResponse};
 pub(crate) async fn add_joinees(
     State(state): State<AppState>,
     Extension(account): Extension<Account>,
-    Path(project_code): Path<String>,
+    Query(joinees): Query<AddJoineesParams>,
 ) -> Result<JsonUnifyResponse<()>, AppError> {
-    let project = state.get_project_from_project_code(project_code).await?;
+    let project = state
+        .get_project_from_project_code(joinees.project_code)
+        .await?;
     let Some(project) = project else {
         return Err(AppError::NotFound("project not found".to_string()));
     };

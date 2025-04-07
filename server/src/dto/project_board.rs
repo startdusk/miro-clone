@@ -15,3 +15,8 @@ pub struct CreateOrUpdateProjectBoardDataParams {
     pub text_caption: Option<serde_json::Value>,
     pub drawing: Option<serde_json::Value>,
 }
+
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct AddJoineesParams {
+    pub project_code: String,
+}

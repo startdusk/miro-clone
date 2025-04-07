@@ -76,14 +76,13 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
         .route("/projects", put(create_project).get(get_my_projects))
         .route("/projects/{project_id}", post(update_project))
         .route("/projects/detail", get(get_project_detail))
+        .route("/projects/joinees", post(add_joinees))
         .nest(
             "/projects/{project_id}",
-            Router::new()
-                .route(
-                    "/project_board",
-                    get(get_project_board_data).post(create_or_update_project_board_data),
-                )
-                .route("/joinees", post(add_joinees)),
+            Router::new().route(
+                "/project_board",
+                get(get_project_board_data).post(create_or_update_project_board_data),
+            ),
         )
         .layer(from_fn_with_state(state.clone(), verify_token::<AppState>));
 

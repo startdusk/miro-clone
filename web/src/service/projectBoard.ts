@@ -5,12 +5,11 @@ import type { IProjectBoardData } from "../types";
 
 export function useGetProjectBoardData(
 ) {
-  const loading = ref(false)
+  const loading = ref(true)
   const projectBoardData = ref<IProjectBoardData | null>(null)
   const getProjectBoardData = async (
     projectId: number,
   ) => {
-    loading.value = true
     try {
       const res = await makeHttpReq<{}, IProjectBoardData>(
         `projects/${projectId}/project_board`,
@@ -20,6 +19,8 @@ export function useGetProjectBoardData(
     } catch (error) {
       console.error(error)
       showError('get project board data failed')
+    } finally {
+      loading.value = false
     }
   }
   return {
@@ -31,13 +32,12 @@ export function useGetProjectBoardData(
 
 export function useSaveProjectBoardData(
 ) {
-  const loading = ref(false) 
+  const loading = ref(true) 
 
   const saveProjectBoardData = async (
   projectId: number,
   projectBoardData: IProjectBoardData,
 ) => {
-    loading.value = true
     try {
       await makeHttpReq<IProjectBoardData, null>(
         `projects/${projectId}/project_board`,
