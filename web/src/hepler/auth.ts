@@ -1,4 +1,7 @@
+import { useRouter } from 'vue-router';
 import { jwtDecode } from "jwt-decode";
+import { redirectTo } from '../types';
+
 
 export interface AuthToken extends User {
     iat: number;
@@ -63,5 +66,5 @@ export const hasLogined = () => {
 
 export const redirectLogin = () => {
     localStorage.clear()
-    window.location.href = '/login'
+    redirectTo('/login')
 }

@@ -1,16 +1,10 @@
 
 import { getUserData, redirectLogin } from "../hepler/auth"
-import { makeHttpReq } from "../hepler/http"
-import { showError } from "../hepler/toastNotification"
-
-interface LogoutInput {
-  userId: number
-}
-
-interface LogoutResp {
-}
+import { useAuthStore } from "../store/authStore"
 
 export async function loggout() {
+  const authStore = useAuthStore()
+    authStore.disconnectSse()
     const user = getUserData()
     if (!user) {
         redirectLogin()
@@ -18,16 +12,6 @@ export async function loggout() {
     }
 
     redirectLogin()
-    return
-    // try {
-    //   await makeHttpReq<LogoutInput, LogoutResp>('/api/v1/user/logout', 'POST', {
-    //       userId: user.id,
-    //   })
-
-    //   redirectLogin()
-    // } catch (error) {
-    //   showError((error as Error).message)
-    // }
 }
 
 const authorizeUrlKey = 'authorize_url'

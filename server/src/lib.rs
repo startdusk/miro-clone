@@ -18,7 +18,7 @@ use dashmap::DashMap;
 use dto::Account;
 use middlewares::{set_layer, verify_token, TokenVerify};
 use oauth::{GithubClient, OAuthClient};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use sqlx::PgPool;
 use tokio::sync::broadcast;
 use tower_http::cors::{self, CorsLayer};
@@ -38,11 +38,58 @@ pub type AccountId = u64;
 
 pub type UserMap = Arc<DashMap<AccountId, broadcast::Sender<Arc<AppEvent>>>>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(tag = "event")]
 pub enum AppEvent {
-    ProjectBoardEvent(ProjectCode),
-    UserTyipingEvent(AccountId),
+    CurrentProjectUsersEvent(CurrentProjectUsersEvent),
+    JoinProjectBoardEvent(ProjectBoardEvent),
+    LeavingProjectBoardEvent(ProjectBoardEvent),
+    UserTyipingEvent(UserTyipingEvent),
+}
+
+#[derive(Debug, Serialize)]
+pub struct CurrentProjectUsersEvent {
+    pub room_id: String,     // 房间号
+    pub users: Vec<Account>, // 房间内的用户
+}
+
+impl CurrentProjectUsersEvent {
+    pub fn new(project_code: String, users: Vec<Account>) -> Self {
+        Self {
+            room_id: make_project_room_id(&project_code),
+            users,
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct ProjectBoardEvent {
+    pub room_id: String, // 房间号
+    pub user: Account,
+}
+
+impl ProjectBoardEvent {
+    pub fn new(project_code: String, user: Account) -> Self {
+        Self {
+            room_id: make_project_room_id(&project_code),
+            user,
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+pub struct UserTyipingEvent {
+    pub room_id: String,           // 房间号
+    pub typing_user_id: AccountId, // 谁在输入, 可能没有人在输入
+}
+
+impl UserTyipingEvent {
+    pub fn new(project_code: String, user_id: AccountId) -> Self {
+        Self {
+            room_id: make_project_room_id(&project_code),
+            typing_user_id: user_id,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -73,6 +120,7 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
         .allow_origin(cors::Any);
 
     let api = Router::new()
+        .route("/events", get(sse_handler))
         .route("/projects", put(create_project).get(get_my_projects))
         .route("/projects/{project_id}", post(update_project))
         .route("/projects/detail", get(get_project_detail))
@@ -88,7 +136,6 @@ pub async fn get_router(state: AppState) -> Result<Router, AppError> {
 
     let app = Router::new()
         .route("/", get(index_handler))
-        .route("/events", get(sse_handler))
         .route("/auth/{app_name}/authorize", get(oauth_authorize_handler))
         .route("/auth/{app_name}/callback", get(oauth_callback_handler))
         .nest("/api", api)
@@ -135,6 +182,10 @@ impl AppState {
             }),
         })
     }
+}
+
+fn make_project_room_id(project_code: &str) -> String {
+    format!("project.room.{project_code}")
 }
 
 impl fmt::Debug for AppStateInner {

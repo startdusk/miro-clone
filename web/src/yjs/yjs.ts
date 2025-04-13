@@ -1,6 +1,6 @@
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
-import { yjsDocStore } from "../store/yjsDoc";
+import { useYjsDocStore } from "../store/yjsDoc";
 import { runFuncSequentially } from "../hepler/utils";
 import {
   initCursor,
@@ -14,6 +14,8 @@ import {
 interface IYjsOption {
   projectCode: string;
 }
+
+const yjsDocStore = useYjsDocStore();
 
 export function initYjs(opt : IYjsOption) {
   yjsDocStore.loading = true;

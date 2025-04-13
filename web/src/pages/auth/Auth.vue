@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { redirectLogin, storeUserToken } from '../../hepler/auth';
 import { authenticate } from '../../service/auth';
+import { redirectTo } from '../../types';
 
 const msg = ref('Waiting for authorization...')
 
@@ -23,7 +24,7 @@ onMounted(() => {
     msg.value = 'auth was successful'
     storeUserToken(token)
     setTimeout(() => {
-      window.location.href = '/projects';
+      redirectTo('/projects')
     }, 500)
   } else {
     hasAuthorized.value = false

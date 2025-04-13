@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import { yjsDocStore } from '../../../../store/yjsDoc';
+import { useYjsDocStore } from '../../../../store/yjsDoc';
 import { createBlinkingCursorClassName } from '../../../../actions/project-board/blinking-cursor/blinkingCursorType';
+
+const yjsDocStore = useYjsDocStore();
 
 const props = defineProps<{
   miniTextEditorId: number;

@@ -1,9 +1,11 @@
 import { textCaptionStore } from "../../../store/textCaption";
-import { yjsDocStore } from "../../../store/yjsDoc";
+import { useYjsDocStore } from "../../../store/yjsDoc";
 
 import { debounce, getCursorPosition, moveCursorToPosition, runFuncSequentially } from "../../../hepler/utils";
 import { createTextCaptionBodyClassName, createTextCaptionClassName, createTextCaptionHandlerClassName, createTextCaptionResizerClassName } from "./textCaptionTypes";
 import type { ITextCaption } from "../../../types";
+
+const yjsDocStore = useYjsDocStore()
 
 /**
  * 拖拽文本框

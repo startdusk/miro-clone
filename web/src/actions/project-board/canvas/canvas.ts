@@ -1,5 +1,7 @@
-import { yjsDocStore } from "../../../store/yjsDoc";
+import { useYjsDocStore } from "../../../store/yjsDoc";
 import { drawingLineWith, type IReplayDrawing } from "../../../types";
+
+const yjsDocStore = useYjsDocStore();
 
 function useDrawOnCanvas(
   canvas: HTMLCanvasElement,

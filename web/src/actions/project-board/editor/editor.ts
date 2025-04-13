@@ -1,5 +1,7 @@
-import { yjsDocStore } from "../../../store/yjsDoc"
+import { useYjsDocStore } from "../../../store/yjsDoc"
 import { createApplyAlignCenterClassName, createApplyAlignLeftClassName, createApplyAlignRightClassName, createApplyBoldClassName, createApplyH1ClassName, createApplyH2ClassName, createApplyH3ClassName, createApplyHighlightTextClassName, createApplyImageClassName, createApplyItalicClassName, createApplyLinkClassName, createApplyListClassName, createApplyUnderlineClassName, createMiniTextEditorBodyClassName, toolbarClassName } from "./miniTextEditorType"
+
+const yjsDocStore = useYjsDocStore()
 
 export function useEditor() {
   return { 

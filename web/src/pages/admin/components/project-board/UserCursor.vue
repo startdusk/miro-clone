@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import { yjsDocStore } from "../../../../store/yjsDoc";
+import { useYjsDocStore } from "../../../../store/yjsDoc";
+
+const yjsDocStore = useYjsDocStore();
 
 const props = defineProps<{
   mousePosition: {

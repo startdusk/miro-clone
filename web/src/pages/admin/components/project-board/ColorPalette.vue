@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { stickyNoteStore } from '../../../../store/stickyNote';
+import type { IStickyNote } from '../../../../types';
 
-import type { IStickyNote } from '../../../../actions/project-board/sticky-note/stickyNoteType';
 
 const props = defineProps<{ stickyNotes: IStickyNote[]; }>();
 

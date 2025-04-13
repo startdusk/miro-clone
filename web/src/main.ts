@@ -26,8 +26,9 @@ async function registerIcons(app: any) {
 }
 const app = createApp(App)
 app.use(ToastPlugin)
-app.use(router)
 app.use(createPinia())
+app.use(router)
+
 await registerIcons(app)
 app.mount('#app')
 

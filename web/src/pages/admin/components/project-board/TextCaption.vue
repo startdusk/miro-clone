@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { createTextCaptionBodyClassName, createTextCaptionClassName, createTextCaptionHandlerClassName, createTextCaptionResizerClassName, type ITextCaption } from '../../../../actions/project-board/text-caption/textCaptionTypes';
+import { createTextCaptionBodyClassName, createTextCaptionClassName, createTextCaptionHandlerClassName, createTextCaptionResizerClassName } from '../../../../actions/project-board/text-caption/textCaptionTypes';
+import type { ITextCaption } from '../../../../types';
 
 defineProps<{
   textCaptions: ITextCaption[];

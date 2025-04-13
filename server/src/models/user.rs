@@ -78,6 +78,18 @@ impl AppState {
         .await?;
         Ok(user)
     }
+
+    pub async fn get_users_from_user_ids(&self, user_ids: Vec<i64>) -> Result<Vec<User>, AppError> {
+        let users = sqlx::query_as(
+            r#"
+            SELECT * FROM users WHERE id = ANY($1)
+        "#,
+        )
+        .bind(user_ids)
+        .fetch_all(&self.pool)
+        .await?;
+        Ok(users)
+    }
 }
 
 impl NewUser {
@@ -145,6 +157,30 @@ mod tests {
         assert_eq!(user.name, "test2");
         assert_eq!(user.github_id, Some("123456".to_string()));
         assert_eq!(user.email, "EMAIL.test2@example.com".to_string());
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_get_user() -> Result<()> {
+        let (_tdb, state) = AppState::new_for_test().await?;
+        // create 10 users
+        let mut user_ids = Vec::new();
+        for i in 0..10 {
+            let new_user = NewUser::new(
+                format!("test{}", i),
+                format!("test{}@example.com", i),
+                format!("123456{}", i),
+            );
+            let user = state.create_user(new_user).await?;
+            user_ids.push(user.id);
+        }
+        let user_ids_len = user_ids.len();
+
+        let users = state.get_users_from_user_ids(user_ids).await?;
+
+        assert_eq!(users.len(), user_ids_len);
+        assert_eq!(users.len(), 10);
+
         Ok(())
     }
 }

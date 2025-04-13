@@ -1,11 +1,13 @@
 import { createMiniTextEditorBodyClassName, createMiniTextEditorClassName, createMiniTextEditorHandlerClassName, createMiniTextEditorResizerClassName } from "./miniTextEditorType";
 import { miniTextEditorStore } from "../../../store/miniTextEditor";
-import { yjsDocStore } from "../../../store/yjsDoc";
+import { useYjsDocStore } from "../../../store/yjsDoc";
 import { useEditor } from "./editor";
 
 import { debounce, getCursorPosition, moveCursorToPosition, runFuncSequentially } from '../../../hepler/utils';
 import { createBlinkingCursorClassName } from "../blinking-cursor/blinkingCursorType";
 import type { IMiniTextEditor } from "../../../types";
+
+const yjsDocStore = useYjsDocStore()
 
 /**
  * 使用拖拽小型文本编辑器

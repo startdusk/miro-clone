@@ -5,26 +5,25 @@ import { onMounted } from 'vue'
 import { hasLogined } from '../../hepler/auth'
 import { loginWithGithub } from '../../service/auth'
 import { useRoute } from 'vue-router'
+import { redirectTo } from '../../types'
 
 const route = useRoute()
 
 const handleLoginWithGithub = async () => {
     await loginWithGithub()
-    location.href = '/auth'
+    redirectTo('/auth')
 }
 
 onMounted(() => {
-    if (hasLogined()) {
-        window.location.href = '/projects'
+    const redirectUrl = route.query.redirect_url?.toString()
+    if (redirectUrl) {
+        const url = decodeURIComponent(redirectUrl)
+        if (url.includes('/add-joinees')) {
+            localStorage.setItem('redirectUrl', url)
+        }
     }
-    if (route.query.redirect_url) {
-        if (typeof route.query.redirect_url !== 'string') {
-            return
-        }
-        if (!route.query.redirect_url.includes('/add-joinees')) {
-            return
-        }
-        window.location.href = route.query.redirect_url.toString()
+    if (hasLogined()) {
+        redirectTo('/projects')
     }
 })
 </script>

@@ -1,4 +1,6 @@
-import { yjsDocStore } from "../../../store/yjsDoc";
+import { useYjsDocStore } from "../../../store/yjsDoc";
+
+const yjsDocStore = useYjsDocStore()
 export function useShareUserCursor(userData: any) {
   const trackMousePosition = (event: MouseEvent) => {
     const userName = userData?.user?.name;

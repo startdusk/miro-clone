@@ -1,6 +1,7 @@
 <script setup lang="ts"> 
 
-import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyNoteHandlerClassName, createStickyNoteResizerClassName, type IStickyNote } from '../../../../actions/project-board/sticky-note/stickyNoteType';
+import { createStickyNoteBodyClassName, createStickyNoteClassName, createStickyNoteHandlerClassName, createStickyNoteResizerClassName } from '../../../../actions/project-board/sticky-note/stickyNoteType';
+import type { IStickyNote } from '../../../../types';
 
 defineProps<{ stickyNotes: IStickyNote[]; }>();
 const emit = defineEmits<{

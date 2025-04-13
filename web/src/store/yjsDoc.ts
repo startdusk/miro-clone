@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import * as Y from 'yjs';
-import { type ICursor, type IMiniTextEditor, type IReplayDrawing, type IStickyNote, type ITextCaption } from "../types";
+import { type ICursor, type IMiniTextEditor, type IReplayDrawing, type IStickyNote, type ITextCaption, type IUser } from "../types";
 
-const useYjsDocStore = defineStore('yjsDoc', {
+export const useYjsDocStore = defineStore('yjsDoc', {
   state: () => ({
     loading: false,
     doc: new Y.Doc(),
@@ -40,6 +40,8 @@ const useYjsDocStore = defineStore('yjsDoc', {
     arrayDrawing: [] as Array<Array<IReplayDrawing>>,
     //we use it as history
     redoDrawingArray: [] as Array<Array<IReplayDrawing>>,
+
+    joinees: [] as Array<IUser>
   }),
   actions: {
     init() {
@@ -49,6 +51,18 @@ const useYjsDocStore = defineStore('yjsDoc', {
       this.yArrayDrawing = this.doc.getArray('y-array-drawing') as Y.Array<Array<IReplayDrawing>>
       this.yMapCursor = this.doc.getMap('y-map-cursor') as Y.Map<string>
       this.yMapMouse = this.doc.getMap('y-map-mouse') as Y.Map<number>
+    },
+    joinUser(user: IUser) {
+      if (!this.joinees.find((u) => {
+        u.id === user.id
+      })) {
+        this.joinees.push(user)
+      }
+    },
+    leaveUser(userId: number) {
+      this.joinees = this.joinees.filter((user) => {
+        user.id !== userId
+      })
     },
     setStickyNotes(notes: IStickyNote[]) {
       this.stickyNotes = notes
@@ -67,12 +81,12 @@ const useYjsDocStore = defineStore('yjsDoc', {
     },
     setCursorInfo(cursor: ICursor) {
       const { cursorPosition, x, y } = cursor
-      yjsDocStore.cursor.cursorPosition = cursorPosition;
-      yjsDocStore.cursor.x = x;
-      yjsDocStore.cursor.y = y;
-      yjsDocStore.yMapCursor.set("x", x);
-      yjsDocStore.yMapCursor.set("y", y);
-      yjsDocStore.yMapCursor.set("typingUser", yjsDocStore.cursor.typingUser);
+      this.cursor.cursorPosition = cursorPosition;
+      this.cursor.x = x;
+      this.cursor.y = y;
+      this.yMapCursor.set("x", x);
+      this.yMapCursor.set("y", y);
+      this.yMapCursor.set("typingUser", this.cursor.typingUser);
     },
     observeYArrayStickyNote(fn: (id: number) => void) {
       this.yArrayStickyNote.observe((_event: any) => {
@@ -103,14 +117,14 @@ const useYjsDocStore = defineStore('yjsDoc', {
     },
     observeTypesForMouse() {
       this.yMapMouse.observe((_event: any) => {
-        yjsDocStore.mousePosition.x = yjsDocStore.yMapMouse.get('x') as number
-        yjsDocStore.mousePosition.y = yjsDocStore.yMapMouse.get('y') as number
+        this.mousePosition.x = this.yMapMouse.get('x') as number
+        this.mousePosition.y = this.yMapMouse.get('y') as number
       })
     },
     observeTypesForCursor() {
       this.yMapCursor.observe((_event: any) => {
-        yjsDocStore.cursor.x = yjsDocStore.yMapCursor.get('x') as string
-        yjsDocStore.cursor.y = yjsDocStore.yMapCursor.get('y') as string
+        this.cursor.x = this.yMapCursor.get('x') as string
+        this.cursor.y = this.yMapCursor.get('y') as string
       })
     },
 
@@ -123,6 +137,3 @@ const useYjsDocStore = defineStore('yjsDoc', {
   }
 })
 
-const yjsDocStore = useYjsDocStore()
-yjsDocStore.init()
-export { yjsDocStore }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { yjsDocStore } from '../../../../store/yjsDoc';
+import { useYjsDocStore } from '../../../../store/yjsDoc';
 
 import { 
   toolbarClassName,
@@ -19,9 +19,12 @@ import {
   createMiniTextEditorBodyClassName,
   createMiniTextEditorClassName, 
   createMiniTextEditorHandlerClassName,
-  createMiniTextEditorResizerClassName, type IMiniTextEditor } from '../../../../actions/project-board/editor/miniTextEditorType';
+  createMiniTextEditorResizerClassName } from '../../../../actions/project-board/editor/miniTextEditorType';
 
 import BlinkingCursor from './BlinkingCursor.vue';
+import type { IMiniTextEditor } from '../../../../types';
+
+const yjsDocStore = useYjsDocStore();
 
 
 defineProps<{ miniTextEditors: IMiniTextEditor[]; }>();

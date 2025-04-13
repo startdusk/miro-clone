@@ -4,6 +4,7 @@ import LoadingIndicator from '../../components/base/LoadingIndicator.vue';
 import { useRoute } from "vue-router";
 import { useAddJoinee } from '../../service/joinee';
 import { hasLogined } from '../../hepler/auth';
+import { redirectTo } from '../../types';
 
 const route = useRoute();
 
@@ -14,9 +15,13 @@ onMounted(async () => {
   if (!projectCode) {
     return;
   }
-
   if (!hasLogined()) {
-      window.location.href = `/login?redirect_url=/add-joinees?project_code=${projectCode}`;
+      const redirectUrl = encodeURIComponent(`/add-joinees?project_code=${projectCode}`)
+      // 重定向到 /login 页面，并传递 redirectUrl 参数
+      redirectTo('/login', 
+        { redirect_url: redirectUrl }
+      )
+      return;
   }
   await addJoinee(projectCode)
 })

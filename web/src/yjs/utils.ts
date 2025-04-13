@@ -1,4 +1,4 @@
-import { yjsDocStore } from "../store/yjsDoc";
+import { useYjsDocStore } from "../store/yjsDoc";
 import { useDragMiniTextEditor } from "../actions/project-board/editor/miniTextEditor"; 
 import { useDragStickyNote } from "../actions/project-board/sticky-note/stickyNote";
 import { useDragTextCaption } from "../actions/project-board/text-caption/textCaption";
@@ -11,6 +11,8 @@ const { initCanvas } = useCanvas()
 const { dragMiniTextEditor, changeMiniTextEditorBodyContent, miniTextEditorHasEventSet  } = useDragMiniTextEditor()
 const { dragStickyNote, changeStickyNoteBodyContent, stickyNoteHasEventSet } = useDragStickyNote()
 const { dragTextCaption, changeTextCaptionBodyContent, textCaptionHasEventSet } = useDragTextCaption()
+
+const yjsDocStore = useYjsDocStore()
 
 export const initCursor = () =>{
   return new Promise((resolve, _reject) =>{

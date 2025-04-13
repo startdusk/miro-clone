@@ -16,13 +16,13 @@ import { useDragStickyNote } from "../../actions/project-board/sticky-note/stick
 import { useDragTextCaption } from "../../actions/project-board/text-caption/textCaption";
 
 import { useDragMiniTextEditor } from "../../actions/project-board/editor/miniTextEditor";
-import { yjsDocStore } from "../../store/yjsDoc";
+import { useYjsDocStore } from "../../store/yjsDoc";
 import { useShareUserCursor } from "../../actions/project-board/cursor/userMouse";
 import { useCanvas } from "../../actions/project-board/canvas/canvas";
 import { initYjs } from "../../yjs/yjs";
 import { useRoute } from "vue-router";
 import { useGetProjectDetail } from "../../service/project";
-import type { IProjectDetail } from "../../types";
+import { redirectTo, type IProjectDetail } from "../../types";
 import { useGetProjectBoardData, useSaveProjectBoardData } from "../../service/projectBoard";
 
 const route = useRoute();
@@ -39,6 +39,7 @@ const { createMiniTextEditor, deleteMiniTextEditor ,dragMiniTextEditor, changeMi
 
 const { createTextCaption, deleteTextCaption, dragTextCaption, changeTextCaptionBodyContent } = useDragTextCaption();
 
+const yjsDocStore = useYjsDocStore();
 
 const changeStickyNoteBgColor = (stickyNoteId: number, bgColor: string) => {
   for (let i = 0; i < yjsDocStore.stickyNotes.length; i++) {
@@ -69,7 +70,7 @@ const {getProjectDetail} = useGetProjectDetail();
 let projectDetail = ref<IProjectDetail>();
 
 const backToProjects = () => {
-  window.location.href = "/projects";
+  redirectTo("/projects");
 }
 
 const initProjectBoardData = async () => {
@@ -130,6 +131,7 @@ const initProjectBoardData = async () => {
     }, 1000);
   }
 }
+
 
 onMounted(async () => {
   if (!projectCode) {

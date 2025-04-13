@@ -33,8 +33,10 @@ pub(crate) async fn sse_handler(
         let _guard = Guard::new(user_id, state);
         while let Ok(v) = rx.recv().await {
             let name = match v.as_ref() {
-                AppEvent::ProjectBoardEvent(_) => "ProjectBoardEvent",
+                AppEvent::JoinProjectBoardEvent(_) => "JoinProjectBoardEvent",
+                AppEvent::LeavingProjectBoardEvent(_) => "LeavingProjectBoardEvent",
                 AppEvent::UserTyipingEvent(_) => "UserTyipingEvent",
+                AppEvent::CurrentProjectUsersEvent(_) => "CurrentProjectUsersEvent",
             };
             let v = serde_json::to_string(&v).expect("Failed to serialize event");
             yield Ok(Event::default().data(v).event(name))
@@ -68,4 +70,3 @@ impl Drop for Guard {
         info!("User {} exit sse, left {} users", self.user_id, left);
     }
 }
-

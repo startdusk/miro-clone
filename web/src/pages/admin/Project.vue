@@ -10,9 +10,10 @@ import ProjectModal from './components/project/ProjectModal.vue';
 import ProjectList from './components/project/ProjectList.vue';
 import { loggout } from '../../service/auth';
 import { useGetProjects } from '../../service/project';
-import type { IProject } from '../../types';
 import { projectStore } from '../../store/projectStore';
 import { TailwindPagination } from "laravel-vue-pagination";
+import { useRouter } from 'vue-router';
+import type { IProject } from '../../types';
 
 
 const user = getUserData();
@@ -24,7 +25,6 @@ const showUserMenu = () => {
 }
 
 const handleClickLogout = async () => {
-  console.log('logout');
   loggout();
 }
 
@@ -72,7 +72,15 @@ const updateProject = (project: IProject) => {
   showProjectModal()
 }
 
+const router = useRouter();
+
 onMounted(async () => {
+  const redirectUrl = localStorage.getItem('redirectUrl');
+  if (redirectUrl) {
+    localStorage.removeItem('redirectUrl');
+    router.push(decodeURIComponent(redirectUrl));
+    return
+  }
   await getMyProjects();
 })
 

@@ -51,7 +51,7 @@ pub(crate) async fn oauth_callback_handler(
             state
                 .create_user(NewUser::new(
                     auth_user.username,
-                    "<unknown.email>".to_string(),
+                    format!("<unknown.{}.email>", auth_user.account_id),
                     auth_user.account_id,
                 ))
                 .await?
